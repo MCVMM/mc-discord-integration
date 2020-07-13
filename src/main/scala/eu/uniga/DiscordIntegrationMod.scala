@@ -8,7 +8,7 @@ import org.slf4j.{Logger, LoggerFactory}
 
 class DiscordIntegrationMod extends ModInitializer {
 
-  private lazy val logger: Logger = LoggerFactory.getLogger("DiscordIntegrationMod")
+  private val logger: Logger = LoggerFactory.getLogger("DiscordIntegrationMod")
 
   override def onInitialize(): Unit = {
     try {
@@ -17,7 +17,7 @@ class DiscordIntegrationMod extends ModInitializer {
 
       // TODO: Bind those methods to real event handlers
       bot.setStatusChannelName("Changed MC status")
-      bot.sendMinecraftMessage("This was sent from Minecraft")
+      bot.sendChatMessage("This was sent from Minecraft")
     }
     catch {
       case InvalidConfigurationException(message) => logger.error(message)

@@ -33,22 +33,20 @@ class DiscordBot(configuration: UnigaConfiguration) {
     statusChannel.getManager.setName(name).queue()
 
   // Send MC message to the chat channel
-  def sendMinecraftMessage(message: String): Unit =
+  def sendChatMessage(message: String): Unit =
     chatChannel.sendMessage(message).queue()
 
-  private def validateChannels: Boolean = {
-    if (chatChannel.isInstanceOf[TextChannel] && statusChannel.isInstanceOf[VoiceChannel]) {
-      // Are both channels in the guild that the bot is in?
-      chatChannel.getGuild.isMember(client.getSelfUser) &&
-      statusChannel.getGuild.isMember(client.getSelfUser) &&
-      // Validate required permissions
-      chatChannel.canTalk &&
-      // Bot can change the status channel name
-      statusChannel.getGuild
-        .getMember(client.getSelfUser)
-        .getPermissions(statusChannel)
-        .contains(Permission.MANAGE_CHANNEL)
-    }
-    else false
-  }
+  private def validateChannels: Boolean =
+    chatChannel.isInstanceOf[TextChannel] &&
+    statusChannel.isInstanceOf[VoiceChannel] &&
+    // Are both channels in the guild that the bot is in?
+    chatChannel.getGuild.isMember(client.getSelfUser) &&
+    statusChannel.getGuild.isMember(client.getSelfUser) &&
+    // Validate required permissions
+    chatChannel.canTalk &&
+    // Bot can change the status channel name
+    statusChannel.getGuild
+      .getMember(client.getSelfUser)
+      .getPermissions(statusChannel)
+      .contains(Permission.MANAGE_CHANNEL)
 }

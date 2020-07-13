@@ -8,9 +8,9 @@ import org.slf4j.{Logger, LoggerFactory}
 
 object UnigaConfigurationLoader {
 
-  private lazy val logger: Logger = LoggerFactory.getLogger("UnigaConfigurationLoader")
+  private val logger: Logger = LoggerFactory.getLogger("UnigaConfigurationLoader")
 
-  private lazy val config: File = new File(
+  private val config: File = new File(
     FabricLoader.getInstance.getConfigDirectory,
     "/uniga-discord-integration.json"
   )
