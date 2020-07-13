@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "unigadiscordintegration",
   "version": "${version}",
-
   "name": "Uniga Discord Integration",
   "description": "This mod allows monitoring the server status and online players to Uniga discord.",
   "authors": [
@@ -12,24 +11,24 @@
     "homepage": "https://uniga.eu/",
     "sources": "https://github.com/MCVMM/mc-discord-integration"
   },
-
   "license": "CC0-1.0",
   "icon": "assets/unigadiscordintegration/icon.png",
-
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.fabricmc.example.ExampleMod"
+      {
+        "value": "eu.uniga.DiscordIntegrationMod"
+      }
     ]
   },
   "mixins": [
     "modid.mixins.json"
   ],
-
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*",
-    "minecraft": "1.16.x"
+    "minecraft": "1.16.x",
+    "fabric-language-scala": "*"
   },
   "suggests": {
     "flamingo": "*"
