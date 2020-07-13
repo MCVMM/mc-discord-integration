@@ -13,4 +13,4 @@ Then create `config/uniga-discord-integration.json` config file with following c
 }
 ```
 
-The bot requires permissions to send messages to `chatChannel` and manage `statusChannel` to start.
+The bot requires permissions to both read and send messages to `chatChannel` and manage `statusChannel` to start.
