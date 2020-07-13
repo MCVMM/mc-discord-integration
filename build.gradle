@@ -25,6 +25,19 @@ dependencies {
 
 	// Scala language support for Fabric
 	modImplementation "net.fabricmc:fabric-language-scala:0.3.1.+"
+
+	// Discord API for Java
+	compile 'net.dv8tion:JDA:4.2.0_177'
+
+	// Logging library implementation
+	implementation 'org.slf4j:slf4j-simple:1.7.30'
+
+    // Config parsing library
+	compile 'com.typesafe:config:1.4.0'
+}
+
+repositories {
+	jcenter()
 }
 
 processResources {
