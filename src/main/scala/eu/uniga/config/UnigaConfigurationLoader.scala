@@ -35,7 +35,7 @@ object UnigaConfigurationLoader {
     // noinspection DangerousCatchAll
     catch { case _ => }
 
-    logger.error(s"Invalid plugin configuration found. Check the ${config.getAbsolutePath} against README.md. Using default configuration.")
+    logger.error(s"Invalid plugin configuration found. Check the ${config.getAbsolutePath} against example in README.md. Using default configuration.")
     createDefaultConfiguration()
   }
 
