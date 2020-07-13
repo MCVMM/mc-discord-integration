@@ -14,6 +14,10 @@ class DiscordIntegrationMod extends ModInitializer {
     try {
       val configuration = UnigaConfigurationLoader.loadConfiguration()
       val bot = new DiscordBot(configuration)
+
+      // TODO: Bind those methods to real event handlers
+      bot.setStatusChannelName("Changed MC status")
+      bot.sendMinecraftMessage("This was sent from Minecraft")
     }
     catch {
       case InvalidConfigurationException(message) => logger.error(message)
