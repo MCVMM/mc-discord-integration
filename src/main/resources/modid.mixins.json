@@ -3,7 +3,9 @@
   "minVersion": "0.8",
   "package": "eu.uniga.mixins",
   "compatibilityLevel": "JAVA_8",
-  "mixins": [],
+  "mixins": [
+    "MinecraftServerMixin"
+  ],
   "client": [],
   "injectors": {
     "defaultRequire": 1

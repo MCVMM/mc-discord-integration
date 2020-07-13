@@ -33,7 +33,7 @@ object UnigaConfigurationLoader {
     }
     // Silently ignore exceptions as they can only be from an invalid configuration file which is the fallback
     // noinspection DangerousCatchAll
-    catch { case _ => }
+    catch { case _: Throwable => }
 
     logger.error(s"Invalid plugin configuration found. Check the ${config.getAbsolutePath} against example in README.md. Using default configuration.")
     createDefaultConfiguration()

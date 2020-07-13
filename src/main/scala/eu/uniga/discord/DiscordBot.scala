@@ -34,7 +34,7 @@ class DiscordBot(configuration: UnigaConfiguration) {
 
   // Send MC message to the chat channel
   def sendChatMessage(message: String): Unit =
-    chatChannel.sendMessage(message).queue()
+    if (!message.isEmpty) chatChannel.sendMessage(message).queue()
 
   private def validateChannels: Boolean =
     chatChannel.isInstanceOf[TextChannel] &&
