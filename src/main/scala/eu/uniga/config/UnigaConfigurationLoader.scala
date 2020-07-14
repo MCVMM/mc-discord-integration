@@ -27,8 +27,7 @@ object UnigaConfigurationLoader {
     try {
       return UnigaConfiguration(
         source.getString("token"),
-        source.getLong("chatChannelId"),
-        source.getLong("statusChannelId"),
+        source.getLong("channel"),
       )
     }
     // Silently ignore exceptions as they can only be from an invalid configuration file which is the fallback
@@ -43,11 +42,7 @@ object UnigaConfigurationLoader {
 
     logger.warn(s"Using default configuration. Either ${config.getAbsolutePath} is missing or contains invalid content.")
 
-    val default = UnigaConfiguration(
-      "Discord token from https://discord.com/developers/applications",
-      0L, // Chat channel
-      0L, // Status channel
-    )
+    val default = UnigaConfiguration("Discord token from https://discord.com/developers/applications", 0L)
 
     // Write the default configuration so it can be easily modified.
     if (!config.exists) {

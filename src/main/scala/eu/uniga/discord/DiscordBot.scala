@@ -7,45 +7,37 @@ import net.dv8tion.jda.api.entities.{TextChannel, VoiceChannel}
 
 class DiscordBot(configuration: UnigaConfiguration) {
 
-  private var chatChannel: TextChannel = _
-
-  // The status channel, which name is used to represent the current server status
-  private var statusChannel: VoiceChannel = _
+  private var channel: TextChannel = _
 
   // The discord client used to connect to Uniga and repost in-game message as well as update the server status
   private val client = JDABuilder.createDefault(configuration.token).build().awaitReady()
 
   {
     // Bind desired channels based on the provided configuration
-    chatChannel = client.getTextChannelById(configuration.chatChannelId)
-    statusChannel = client.getVoiceChannelById(configuration.statusChannelId)
+    channel = client.getTextChannelById(configuration.channel)
 
     if (!validateChannels)
       throw InvalidConfigurationException(
         """
-          |Invalid channels configuration.
-          |Check whether the ids are configured correctly and the bot can manage the status channel,
-          |message the chat channel.""".stripMargin)
+          |Invalid channel configuration.
+          |Check whether the id is configured correctly and the bot can manage,
+          |read and send messages to the channel.""".stripMargin)
 
     // Register the message event listener, that redirects the messages from Discord to Minecraft
-    client.addEventListener(
-      new DiscordMessageEventListener(chatChannel, statusChannel))
+    client.addEventListener(new DiscordMessageEventListener(channel))
   }
-  // Send MC message to the chat channel
+  // Send MC message to the channel
   def sendChatMessage(message: String): Unit =
-    if (!message.isEmpty) chatChannel.sendMessage(message).queue()
+    if (!message.isEmpty) channel.sendMessage(message).queue()
 
   private def validateChannels: Boolean =
-    chatChannel.isInstanceOf[TextChannel] &&
-    statusChannel.isInstanceOf[VoiceChannel] &&
-    // Are both channels in the guild that the bot is in?
-    chatChannel.getGuild.isMember(client.getSelfUser) &&
-    statusChannel.getGuild.isMember(client.getSelfUser) &&
-    // Validate required permissions
-    chatChannel.canTalk &&
-    // Bot can change the status channel name
-    statusChannel.getGuild
+    channel.isInstanceOf[TextChannel] &&
+    channel.getGuild.isMember(client.getSelfUser) &&
+    // Bot can send messages
+    channel.canTalk &&
+    // Bot can change the channel name
+    channel.getGuild
       .getMember(client.getSelfUser)
-      .getPermissions(statusChannel)
+      .getPermissions(channel)
       .contains(Permission.MANAGE_CHANNEL)
 }
