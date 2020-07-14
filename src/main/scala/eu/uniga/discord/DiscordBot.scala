@@ -26,12 +26,11 @@ class DiscordBot(configuration: UnigaConfiguration) {
           |Invalid channels configuration.
           |Check whether the ids are configured correctly and the bot can manage the status channel,
           |message the chat channel.""".stripMargin)
+
+    // Register the message event listener, that redirects the messages from Discord to Minecraft
+    client.addEventListener(
+      new DiscordMessageEventListener(chatChannel, statusChannel))
   }
-
-  // Change the status channel's name to the provided parameter
-  def setStatusChannelName(name: String): Unit =
-    statusChannel.getManager.setName(name).queue()
-
   // Send MC message to the chat channel
   def sendChatMessage(message: String): Unit =
     if (!message.isEmpty) chatChannel.sendMessage(message).queue()
