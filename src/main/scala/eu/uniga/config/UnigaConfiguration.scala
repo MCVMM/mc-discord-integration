@@ -16,9 +16,9 @@ case class UnigaConfiguration(
   def toJson: String =
     s"""
        |{
-       |  "token": "${token}",
-       |  "chatChannelId": ${chatChannelId},
-       |  "statusChannelId": ${statusChannelId}
+       |  "token": "$token",
+       |  "chatChannelId": $chatChannelId,
+       |  "statusChannelId": $statusChannelId
        |}
        |""".stripMargin
 }

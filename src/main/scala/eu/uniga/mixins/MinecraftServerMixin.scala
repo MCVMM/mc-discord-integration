@@ -4,7 +4,7 @@ import java.util.UUID
 
 import eu.uniga.DiscordIntegrationMod
 import net.minecraft.server.MinecraftServer
-import net.minecraft.text.{Text, TranslatableText}
+import net.minecraft.text.Text
 import org.spongepowered.asm.mixin.Mixin
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import org.spongepowered.asm.mixin.injection.{At, Inject}
@@ -19,7 +19,6 @@ class MinecraftServerMixin {
     DiscordIntegrationMod.bot.sendChatMessage(format(text))
   }
 
-  private def format(text: Text): String =
-    // TODO: do a proper formatting based on the text class (as Text is general interface implemented by a shit ton of concrete classes in MC)
-    text.getString
+  // TODO: do a proper formatting based on the text class (as Text is general interface implemented by a shit ton of concrete classes in MC)
+  private def format(text: Text): String = text.getString
 }
