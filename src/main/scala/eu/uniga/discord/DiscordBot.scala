@@ -1,5 +1,6 @@
 package eu.uniga.discord
 
+import eu.uniga.EmojiService.EmojiStore
 import eu.uniga.config.UnigaConfiguration
 import eu.uniga.exceptions.InvalidConfigurationException
 import net.dv8tion.jda.api.{JDABuilder, Permission}
@@ -8,6 +9,7 @@ import net.dv8tion.jda.api.entities.{TextChannel, VoiceChannel}
 class DiscordBot(configuration: UnigaConfiguration) {
 
   private var channel: TextChannel = _
+  private var emojiStore: EmojiStore = new EmojiStore()
 
   // The discord client used to connect to Uniga and repost in-game message as well as update the server status
   private val client = JDABuilder.createDefault(configuration.token).build().awaitReady()
@@ -15,6 +17,8 @@ class DiscordBot(configuration: UnigaConfiguration) {
   {
     // Bind desired channels based on the provided configuration
     channel = client.getTextChannelById(configuration.channel)
+    emojiStore.AddServer(channel.getGuild)
+    emojiStore.Start()
 
     if (!validateChannels)
       throw InvalidConfigurationException(
