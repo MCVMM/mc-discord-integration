@@ -1,4 +1,4 @@
-package eu.uniga.EmojiService;
+package eu.uniga.EmojiService.ResourcePack;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -10,12 +10,12 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 
-public class ResourcePackWebServer
+public class WebServer
 {
 	private HttpServer _server;
 	private final Logger _logger = LoggerFactory.getLogger(this.getClass().getName());
 	
-	public ResourcePackWebServer(int port)
+	public WebServer(int port)
 	{
 		try
 		{
@@ -45,7 +45,7 @@ public class ResourcePackWebServer
 		@Override
 		public void handle(HttpExchange exchange) throws IOException
 		{
-			if (!Files.exists(ResourcePackService.ResourcePackLocation))
+			if (!Files.exists(Service.ResourcePackLocation))
 			{
 				exchange.sendResponseHeaders(404, 0);
 				exchange.getResponseBody().close();
@@ -53,9 +53,9 @@ public class ResourcePackWebServer
 				return;
 			}
 			
-			exchange.sendResponseHeaders(200, Files.size(ResourcePackService.ResourcePackLocation));
+			exchange.sendResponseHeaders(200, Files.size(Service.ResourcePackLocation));
 			OutputStream outputStream = exchange.getResponseBody();
-			Files.copy(ResourcePackService.ResourcePackLocation, outputStream);
+			Files.copy(Service.ResourcePackLocation, outputStream);
 			outputStream.close();
 		}
 	}
