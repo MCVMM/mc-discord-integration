@@ -32,9 +32,9 @@ public final class BitmapGenerator
 	 * Downloads all emotes, and makes atlas from it
 	 * @return Emote atlas as image
 	 */
-	public Image GetEmoteBitmapAtlas()
+	public BufferedImage GetEmoteBitmapAtlas()
 	{
-		Image atlasImage = new BufferedImage(_size * EmoteSize, _size * EmoteSize, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage atlasImage = new BufferedImage(_size * EmoteSize, _size * EmoteSize, BufferedImage.TYPE_INT_ARGB);
 		Graphics graphics = atlasImage.getGraphics();
 		int position = 0;
 		
@@ -133,20 +133,6 @@ public final class BitmapGenerator
 	{
 		Point atlasPosition = GetAtlasPosition(position);
 		destination.drawImage(source,  atlasPosition.x * EmoteSize, atlasPosition.y * EmoteSize, EmoteSize, EmoteSize, null);
-	}
-	
-	// TODO: use elsewhere
-	private @NotNull String Utf16ToEscapedString(int utf16)
-	{
-		String out = "";
-		
-		short left = (short)((utf16 & 0xFFFF0000) >> 16);
-		short right = (short)utf16;
-		
-		if (left != 0) out += String.format("\\u%s", String.format("%04x", left));
-		out += String.format("\\u%s", String.format("%04x", right));
-		
-		return out;
 	}
 	
 	// Converts UTF codepoint into UTF-16 surrogate pair (or one code unit)

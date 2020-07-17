@@ -3,6 +3,7 @@ package eu.uniga.EmojiService.ResourcePack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -35,13 +36,11 @@ public final class Zip
 	
 	public void Finish() throws IOException
 	{
-		if (_stream == null)
-		{
-			_logger.warn("Closing already closed ZIP");
-			
-			return;
-		}
+		if (_stream != null) _stream.close();
+		else _logger.warn("Closing already closed ZIP");
 		
-		_stream.close();
+		Files.delete(Service.ResourcePackLocation);
+		if (!new File(Service.ResourcePackLocation.toString() + ".tmp").
+						renameTo(new File(Service.ResourcePackLocation.toString()))) throw new IOException("Rename failed");
 	}
 }
