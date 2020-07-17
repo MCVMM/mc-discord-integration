@@ -14,7 +14,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 
-class BitmapGenerator
+public final class BitmapGenerator
 {
 	private final int EmoteSize = 128;
 	private final Logger _logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -114,7 +114,7 @@ class BitmapGenerator
 		}
 		catch (IOException e)
 		{
-			_logger.error("Error downloading " + emote.getImageUrl(), e);
+			_logger.warn("Error downloading " + emote.getImageUrl(), e);
 			
 			return null;
 		}
