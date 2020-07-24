@@ -13,6 +13,7 @@ import java.util.Timer;
 import eu.uniga.EmojiService.BitmapGenerator;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -31,13 +32,15 @@ public class EmojiService
 	public static final Path ResourcePackLocation = Paths.get("resource-pack.zip");
 	private final Set<Guild> _servers = new HashSet<>();
 	private final Object _serversLock = new Object();
-	private final Set<Emote> _emotes = new HashSet<>();
+	private List<Emote> _emotes = new ArrayList<>();
+	private long _lastEmoteId = 0;
 	private final Object _emotesLock = new Object();
 	private final Timer _timer;
 	
 	private BufferedImage _emoteBitmapAtlas = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 	private int[][] _emoteCodepointAtlas = new int[0][0];
-	private Map<Integer, String> _emoteTranslation = new HashMap<>();
+	private Map<Integer, String> _emoteSurrogatePairsTranslation = new HashMap<>();
+	private Map<String, Integer> _emoteIDsTranslation = new HashMap<>();
 	private String _hash = "";
 	private IResourcePackReloadable _reloadable;
 	
@@ -58,8 +61,6 @@ public class EmojiService
 	public void Start(long grabberPeriod)
 	{
 		Grabber grabber = new Grabber();
-		// TODO: Move period to config
-		//_timer.scheduleAtFixedRate(grabber, 1000, 2 * 60 * 60* 1000);
 		_timer.scheduleAtFixedRate(new Grabber(), 0, grabberPeriod);
 	}
 	
@@ -150,10 +151,7 @@ public class EmojiService
 		@Override
 		public void run()
 		{
-			// TODO: on emoji remove
-			_emotes.clear();
-			int added = GetEmotes();
-			if (added == 0) return;
+			if (!GetEmotes()) return;
 			
 			synchronized (_emotesLock)
 			{
@@ -161,45 +159,61 @@ public class EmojiService
 				
 				_emoteBitmapAtlas = bitmapGenerator.GetEmoteBitmapAtlas();
 				_emoteCodepointAtlas = bitmapGenerator.GetEmoteCodepointAtlas();
-				_emoteTranslation = bitmapGenerator.GetEmoteTranslation();
+				_emoteIDsTranslation = bitmapGenerator.GetEmoteIDsTranslation();
+				_emoteSurrogatePairsTranslation = bitmapGenerator.GetSurrogatePairsTranslation();
+				_emoteIDsTranslation = bitmapGenerator.GetEmoteIDsTranslation();
 				CreateZip();
 			}
 			
 			Random random = new Random();
 			String url = "http://localhost/resource-pack" + random.nextInt();
 			_logger.info("Reloading resource pack, url: " + url + " hash: " + _hash);
+			// TODO: thread safety:
 			_reloadable.Reload(url, _hash);
 		}
 		
-		private int GetEmotes()
+		private boolean SameEmojiCollections(List<Emote> newEmotes)
 		{
-			int added = 0;
-			
-			synchronized (_serversLock)
-			{
-				for (Guild server : _servers)
-				{
-					added += GetEmotes(server);
-				}
-			}
-			
-			return added;
-		}
-		
-		private int GetEmotes(Guild server)
-		{
-			List<Emote> emotes = server.getEmotes();
-			int added = 0;
+			// Assuming "_emotes" is already sorted
+			newEmotes.sort(Comparator.comparingLong(ISnowflake::getIdLong));
 			
 			synchronized (_emotesLock)
 			{
-				for (Emote emote : emotes)
+				if (_emotes.size() != newEmotes.size()) return false;
+				if (_emotes.get(_emotes.size() - 1).getIdLong() != newEmotes.get(newEmotes.size() - 1).getIdLong()) return false;
+				
+				for (Emote newEmote : newEmotes)
 				{
-					added += _emotes.add(emote) ? 1 : 0;
+					if (!_emoteIDsTranslation.containsKey(newEmote.getAsMention())) return false;
 				}
 			}
 			
-			return added;
+			return true;
+		}
+		
+		private boolean GetEmotes()
+		{
+			List<Emote> emotes = new ArrayList<>();
+			
+			synchronized (_serversLock)
+			{
+				// Get all emotes from servers
+				for (Guild server : _servers)
+				{
+					List<Emote> serverEmotes = server.getEmotes();
+					emotes.addAll(serverEmotes);
+				}
+			}
+			
+			// Compare if something changed
+			if (SameEmojiCollections(emotes)) return false;
+			
+			synchronized (_emotesLock)
+			{
+				_emotes = emotes;
+			}
+			
+			return true;
 		}
 	}
 }

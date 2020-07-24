@@ -19,10 +19,10 @@ public final class BitmapGenerator
 	private final int EmoteSize = 128;
 	private final Logger _logger = LogManager.getLogger();
 	
-	private final Set<Emote> _emotes;
+	private final Collection<Emote> _emotes;
 	private final int _size;
 	
-	public BitmapGenerator(Set<Emote> emotes)
+	public BitmapGenerator(Collection<Emote> emotes)
 	{
 		_emotes = emotes;
 		_size = (int)Math.ceil(Math.sqrt(_emotes.size()));
@@ -79,7 +79,7 @@ public final class BitmapGenerator
 	 * Gets all used UTF-16 surrogate pairs with translation to short names (may be duplicates)
 	 * @return UTF-16 surrogate pairs to short names map
 	 */
-	public Map<Integer, String> GetEmoteTranslation()
+	public Map<Integer, String> GetSurrogatePairsTranslation()
 	{
 		Map<Integer, String> translation = new HashMap<>();
 		
@@ -88,6 +88,25 @@ public final class BitmapGenerator
 		for (Emote emote : _emotes)
 		{
 			translation.put(ToUtf16(codepoint), emote.getName());
+			codepoint++;
+		}
+		
+		return translation;
+	}
+	
+	/***
+	 * Gets all used UTF-16 surrogate pairs with translation to short names (may be duplicates)
+	 * @return UTF-16 surrogate pairs to short names map
+	 */
+	public Map<String, Integer> GetEmoteIDsTranslation()
+	{
+		Map<String, Integer> translation = new HashMap<>();
+		
+		int codepoint = 0xE000; // PUA block in BMP, 6400 code points, should be enough (That's 104MP image)
+		
+		for (Emote emote : _emotes)
+		{
+			translation.put(emote.getAsMention(), ToUtf16(codepoint));
 			codepoint++;
 		}
 		
