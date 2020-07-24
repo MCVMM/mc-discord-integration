@@ -1,4 +1,4 @@
-package eu.uniga.EmojiService;
+package eu.uniga.EmojiService.ResourcePack;
 
 import net.dv8tion.jda.api.entities.Emote;
 import org.apache.logging.log4j.LogManager;

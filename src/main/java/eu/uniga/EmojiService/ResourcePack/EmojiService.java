@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.List;
 import java.util.Timer;
 
-import eu.uniga.EmojiService.BitmapGenerator;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
