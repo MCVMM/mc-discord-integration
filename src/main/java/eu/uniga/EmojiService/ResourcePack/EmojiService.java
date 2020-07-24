@@ -13,15 +13,20 @@ import java.util.Timer;
 import eu.uniga.EmojiService.BitmapGenerator;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 
-public class Service
+public class EmojiService
 {
-	private final Logger _logger = LoggerFactory.getLogger(this.getClass().getName());
+	public interface IResourcePackReloadable
+	{
+		void Reload(String url, String Sha1);
+	}
+	
+	private final Logger _logger = LogManager.getLogger();
 	private static final String AtlasName = "discord-emoji";
 	public static final Path ResourcePackLocation = Paths.get("resource-pack.zip");
 	private final Set<Guild> _servers = new HashSet<>();
@@ -33,22 +38,29 @@ public class Service
 	private BufferedImage _emoteBitmapAtlas = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 	private int[][] _emoteCodepointAtlas = new int[0][0];
 	private Map<Integer, String> _emoteTranslation = new HashMap<>();
+	private String _hash = "";
+	private IResourcePackReloadable _reloadable;
 	
-	public Service()
+	public EmojiService(IResourcePackReloadable reloadable)
 	{
+		_reloadable = reloadable;
 		_timer = new Timer(true);
 	}
 	
-	public void AddServer(Guild server)
+	public void AddChannel(Guild channel)
 	{
-		_servers.add(server);
+		synchronized (_serversLock)
+		{
+			_servers.add(channel);
+		}
 	}
 	
-	public void Start()
+	public void Start(long grabberPeriod)
 	{
+		Grabber grabber = new Grabber();
 		// TODO: Move period to config
-		_timer.scheduleAtFixedRate(new Grabber(), 0, 2 * 60 * 60* 1000);
-		//_timer.scheduleAtFixedRate(new Grabber(), 0, 10 * 1000);
+		//_timer.scheduleAtFixedRate(grabber, 1000, 2 * 60 * 60* 1000);
+		_timer.scheduleAtFixedRate(new Grabber(), 0, grabberPeriod);
 	}
 	
 	public void Stop()
@@ -124,6 +136,8 @@ public class Service
 			zip.Add("assets/minecraft/font/default.json", FormatToByteArray(_emoteCodepointAtlas));
 			zip.Add("pack.mcmeta", GetPackMCMeta());
 			zip.Finish();
+			// TODO: try not to read whole file form disk again
+			_hash = zip.GetSha1();
 		}
 		catch (IOException e)
 		{
@@ -148,9 +162,13 @@ public class Service
 				_emoteBitmapAtlas = bitmapGenerator.GetEmoteBitmapAtlas();
 				_emoteCodepointAtlas = bitmapGenerator.GetEmoteCodepointAtlas();
 				_emoteTranslation = bitmapGenerator.GetEmoteTranslation();
+				CreateZip();
 			}
 			
-			CreateZip();
+			Random random = new Random();
+			String url = "http://localhost/resource-pack" + random.nextInt();
+			_logger.info("Reloading resource pack, url: " + url + " hash: " + _hash);
+			_reloadable.Reload(url, _hash);
 		}
 		
 		private int GetEmotes()

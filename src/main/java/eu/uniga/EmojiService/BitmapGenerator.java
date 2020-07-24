@@ -1,9 +1,9 @@
 package eu.uniga.EmojiService;
 
 import net.dv8tion.jda.api.entities.Emote;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -17,7 +17,7 @@ import java.util.*;
 public final class BitmapGenerator
 {
 	private final int EmoteSize = 128;
-	private final Logger _logger = LoggerFactory.getLogger(this.getClass().getName());
+	private final Logger _logger = LogManager.getLogger();
 	
 	private final Set<Emote> _emotes;
 	private final int _size;
