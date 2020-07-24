@@ -181,7 +181,6 @@ public class EmojiService
 			String url = "http://localhost/resource-pack" + random.nextInt();
 			_logger.info("Reloading resource pack, url: " + url + " hash: " + _hash);
 			
-			// Not thread safe, should not matter that much
 			if (changed == EmotesChanged.Yes) _reloadable.Reload(url, _hash);
 			// else reload "dictionary"
 		}
