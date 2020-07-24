@@ -144,8 +144,8 @@ public class EmojiService
 			zip.Add("assets/minecraft/font/default.json", FormatToByteArray(_emoteCodepointAtlas));
 			zip.Add("pack.mcmeta", GetPackMCMeta());
 			zip.Finish();
-			// TODO: try not to read whole file form disk again
-			_hash = zip.GetSha1();
+			// TO DO: try not to read whole file form disk again
+			// _hash = zip.GetSha1();
 		}
 		catch (IOException e)
 		{
