@@ -194,6 +194,7 @@ public class EmojiService
 			synchronized (_emotesLock)
 			{
 				if (_emotes.size() != newEmotes.size()) return EmotesChanged.Yes;
+				if (_emotes.size() == 0) return EmotesChanged.No;
 				if (_emotes.get(_emotes.size() - 1).getIdLong() != newEmotes.get(newEmotes.size() - 1).getIdLong()) return EmotesChanged.Yes;
 				
 				for (Emote newEmote : newEmotes)
