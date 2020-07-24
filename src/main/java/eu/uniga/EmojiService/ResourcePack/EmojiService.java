@@ -27,6 +27,13 @@ public class EmojiService
 		void Reload(String url, String Sha1);
 	}
 	
+	private enum EmotesChanged
+	{
+		No,
+		OnlyName,
+		Yes,
+	}
+	
 	private final Logger _logger = LogManager.getLogger();
 	private static final String AtlasName = "discord-emoji";
 	public static final Path ResourcePackLocation = Paths.get("resource-pack.zip");
@@ -151,47 +158,54 @@ public class EmojiService
 		@Override
 		public void run()
 		{
-			if (!GetEmotes()) return;
+			EmotesChanged changed = GetEmotes();
+			if (changed == EmotesChanged.No) return;
 			
 			synchronized (_emotesLock)
 			{
 				BitmapGenerator bitmapGenerator = new BitmapGenerator(_emotes);
 				
-				_emoteBitmapAtlas = bitmapGenerator.GetEmoteBitmapAtlas();
-				_emoteCodepointAtlas = bitmapGenerator.GetEmoteCodepointAtlas();
-				_emoteIDsTranslation = bitmapGenerator.GetEmoteIDsTranslation();
 				_emoteSurrogatePairsTranslation = bitmapGenerator.GetSurrogatePairsTranslation();
 				_emoteIDsTranslation = bitmapGenerator.GetEmoteIDsTranslation();
-				CreateZip();
+				
+				if (changed == EmotesChanged.Yes)
+				{
+					_emoteBitmapAtlas = bitmapGenerator.GetEmoteBitmapAtlas();
+					_emoteCodepointAtlas = bitmapGenerator.GetEmoteCodepointAtlas();
+					_emoteIDsTranslation = bitmapGenerator.GetEmoteIDsTranslation();
+					CreateZip();
+				}
 			}
 			
 			Random random = new Random();
 			String url = "http://localhost/resource-pack" + random.nextInt();
 			_logger.info("Reloading resource pack, url: " + url + " hash: " + _hash);
-			// TODO: thread safety:
-			_reloadable.Reload(url, _hash);
+			
+			// Not thread safe, should not matter that much
+			if (changed == EmotesChanged.Yes) _reloadable.Reload(url, _hash);
+			// else reload "dictionary"
 		}
 		
-		private boolean SameEmojiCollections(List<Emote> newEmotes)
+		private EmotesChanged CompareEmojiCollections(List<Emote> newEmotes)
 		{
 			// Assuming "_emotes" is already sorted
 			newEmotes.sort(Comparator.comparingLong(ISnowflake::getIdLong));
 			
 			synchronized (_emotesLock)
 			{
-				if (_emotes.size() != newEmotes.size()) return false;
-				if (_emotes.get(_emotes.size() - 1).getIdLong() != newEmotes.get(newEmotes.size() - 1).getIdLong()) return false;
+				if (_emotes.size() != newEmotes.size()) return EmotesChanged.Yes;
+				if (_emotes.get(_emotes.size() - 1).getIdLong() != newEmotes.get(newEmotes.size() - 1).getIdLong()) return EmotesChanged.Yes;
 				
 				for (Emote newEmote : newEmotes)
 				{
-					if (!_emoteIDsTranslation.containsKey(newEmote.getAsMention())) return false;
+					if (!_emoteIDsTranslation.containsKey(newEmote.getAsMention())) return EmotesChanged.OnlyName;
 				}
 			}
 			
-			return true;
+			return EmotesChanged.No;
 		}
 		
-		private boolean GetEmotes()
+		private EmotesChanged GetEmotes()
 		{
 			List<Emote> emotes = new ArrayList<>();
 			
@@ -206,14 +220,15 @@ public class EmojiService
 			}
 			
 			// Compare if something changed
-			if (SameEmojiCollections(emotes)) return false;
+			EmotesChanged changed = CompareEmojiCollections(emotes);
+			if (changed == EmotesChanged.No) return changed;
 			
 			synchronized (_emotesLock)
 			{
 				_emotes = emotes;
 			}
 			
-			return true;
+			return changed;
 		}
 	}
 }
