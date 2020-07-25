@@ -4,8 +4,6 @@ import eu.uniga.MessageTransforms.IMessageTransform;
 import eu.uniga.MessageTransforms.SurrogatePairsDictionary;
 import eu.uniga.Utils.Codepoints;
 import net.minecraft.text.TranslatableText;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,9 +11,7 @@ import java.util.regex.Pattern;
 public class EmojiTransform implements IMessageTransform
 {
 	private SurrogatePairsDictionary _emojiDictionary;
-	private Logger _logger = LogManager.getLogger();
-	//private static final Pattern _pattern = Pattern.compile("(<:[A-z\\-]+?:\\d+?>+)");
-	private static final Pattern _pattern = Pattern.compile("(:[A-z\\-]+?:)");
+	private static final Pattern _pattern = Pattern.compile("(<:[a-zA-Z\\-_]+?:\\d+?>+|:[a-zA-Z\\-_]+?:)");
 	
 	public EmojiTransform(SurrogatePairsDictionary emojiDictionary)
 	{
