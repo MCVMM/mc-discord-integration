@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.List;
 import java.util.Timer;
 
+import eu.uniga.Utils.Codepoints;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -23,7 +24,8 @@ public class EmojiService
 {
 	public interface IResourcePackReloadable
 	{
-		void Reload(String url, String Sha1);
+		void Reload(String url, String sha1);
+		void UpdateDictionary(Map<String, Integer> dictionary);
 	}
 	
 	private enum EmotesChanged
@@ -45,7 +47,6 @@ public class EmojiService
 	
 	private BufferedImage _emoteBitmapAtlas = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 	private int[][] _emoteCodepointAtlas = new int[0][0];
-	private Map<Integer, String> _emoteSurrogatePairsTranslation = new HashMap<>();
 	private Map<String, Integer> _emoteIDsTranslation = new HashMap<>();
 	private String _hash = "";
 	private IResourcePackReloadable _reloadable;
@@ -85,19 +86,6 @@ public class EmojiService
 		return stream.toByteArray();
 	}
 	
-	private @NotNull String Utf16ToEscapedString(int utf16)
-	{
-		String out = "";
-		
-		short left = (short)((utf16 & 0xFFFF0000) >> 16);
-		short right = (short)utf16;
-		
-		if (left != 0) out += String.format("\\u%s", String.format("%04x", left));
-		out += String.format("\\u%s", String.format("%04x", right));
-		
-		return out;
-	}
-	
 	private byte[] FormatToByteArray(int[][] codepointAtlas)
 	{
 		// TODO: move to file
@@ -110,7 +98,7 @@ public class EmojiService
 			
 			for (int x = 0; x < codepointAtlas[y].length; x++)
 			{
-				formattedAtlas.append(Utf16ToEscapedString(codepointAtlas[y][x]));
+				formattedAtlas.append(Codepoints.Utf16ToEscapedString(codepointAtlas[y][x]));
 			}
 			
 			formattedAtlas.append("\"");
@@ -163,8 +151,6 @@ public class EmojiService
 			synchronized (_emotesLock)
 			{
 				BitmapGenerator bitmapGenerator = new BitmapGenerator(_emotes);
-				
-				_emoteSurrogatePairsTranslation = bitmapGenerator.GetSurrogatePairsTranslation();
 				_emoteIDsTranslation = bitmapGenerator.GetEmoteIDsTranslation();
 				
 				if (changed == EmotesChanged.Yes)
@@ -181,7 +167,7 @@ public class EmojiService
 			_logger.info("Reloading resource pack, url: " + url + " hash: " + _hash);
 			
 			if (changed == EmotesChanged.Yes) _reloadable.Reload(url, _hash);
-			// else reload "dictionary"
+			_reloadable.UpdateDictionary(_emoteIDsTranslation);
 		}
 		
 		private EmotesChanged CompareEmojiCollections(List<Emote> newEmotes)
