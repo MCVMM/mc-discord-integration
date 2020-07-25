@@ -21,10 +21,10 @@ public class EmojiTransform implements IMessageTransform
 	@Override
 	public TranslatableText Transform(TranslatableText text)
 	{
-		return NewTransform(text);
+		return TransformText(text);
 	}
 	
-	private TranslatableText NewTransform(TranslatableText text)
+	private TranslatableText TransformText(TranslatableText text)
 	{
 		for (int i = 0; i < text.getArgs().length; i++)
 		{
@@ -53,6 +53,8 @@ public class EmojiTransform implements IMessageTransform
 			}
 			text.getArgs()[i] = buffer.toString();
 		}
+		
+		text.getSiblings().forEach(sibling -> TransformText((TranslatableText)sibling));
 		
 		return text;
 	}
