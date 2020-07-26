@@ -24,15 +24,8 @@ public class EmojiTransform implements IMessageTransform
 	@Override
 	public TranslatableText Transform(TranslatableText text)
 	{
+		//return  text;
 		return TransformText(text);
-	}
-	
-	private TranslatableText TransformText(TranslatableText text)
-	{
-		if (text.getArgs()[1] instanceof String) text.getArgs()[1] = TransformTextRec(new LiteralText((String)text.getArgs()[1]));
-		else if (text.getArgs()[1] instanceof MutableText) text.getArgs()[1] = TransformTextRec((MutableText)text.getArgs()[1]);
-		
-		return text;
 	}
 	
 	private MutableText TransformTextRec(MutableText text)
@@ -41,56 +34,65 @@ public class EmojiTransform implements IMessageTransform
 		oldSiblings.addAll(text.getSiblings());
 		text.getSiblings().clear();
 		
-		LiteralText out;
+		LiteralText out = null;
 		
-		int lastIndex;
+		int lastIndex = 0;
 		String textPart = text.getString();
-		
 		Matcher matcher = _pattern.matcher(textPart);
-		
-		if (matcher.find())
-		{
-			out = new LiteralText(textPart.substring(0, matcher.start()));
-			
-			lastIndex = FoundMatch(out, matcher);
-		}
-		else
-		{
-			out = new LiteralText(textPart);
-			lastIndex = Integer.MAX_VALUE;
-		}
 		
 		while (matcher.find())
 		{
-			lastIndex = FoundMatch(out, matcher);
+			String pre = textPart.substring(lastIndex, matcher.start());
+			String found = textPart.substring(matcher.start(), matcher.end());
+			Integer foundEmote = _emojiDictionary.GetSurrogatePairFromShortName(found);
+			
+			if (foundEmote == null)
+			{
+				pre += found;
+				
+				if (out == null) out = new LiteralText(pre);
+				else out.append(new LiteralText(pre));
+			}
+			else
+			{
+				if (out == null) out = new LiteralText(pre);
+				else out.append(new LiteralText(pre));
+				
+				Style style = MinecraftStyle.NoStyle
+								.withInsertion(matcher.group(1))
+								.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(matcher.group(1))));
+				
+				out.append(new LiteralText(CodePoints.Utf16ToString(foundEmote)).setStyle(style));
+			}
+			
+			lastIndex = matcher.end();
 		}
 		if (lastIndex < textPart.length())
 		{
-			out.append(new LiteralText(textPart.substring(lastIndex)));
+			if (out == null) out = new LiteralText(textPart.substring(lastIndex));
+			else out.append(new LiteralText(textPart.substring(lastIndex)));
 		}
 		
-		oldSiblings.forEach(sibling ->
+		// Just in case
+		if (out == null) out = new LiteralText("");
+		
+		for (Text sibling : oldSiblings)
 		{
 			if (sibling instanceof MutableText) out.append(TransformTextRec((MutableText)sibling));
 			else out.append(TransformTextRec(new LiteralText(sibling.getString())));
-		});
+		}
 		
 		return out;
 	}
 	
-	private int FoundMatch(LiteralText out, Matcher matcher)
+	private TranslatableText TransformText(TranslatableText text)
 	{
-		int lastIndex;
-		Integer found = _emojiDictionary.GetSurrogatePairFromShortName(matcher.group(1));
-		String append;
+		for (int i = 1; i < text.getArgs().length; i++)
+		{
+			if (text.getArgs()[i] instanceof String) text.getArgs()[i] = TransformTextRec(new LiteralText((String)text.getArgs()[1]));
+			else if (text.getArgs()[i] instanceof MutableText) text.getArgs()[i] = TransformTextRec((MutableText)text.getArgs()[1]);
+		}
 		
-		if (found == null) append = matcher.group(1);
-		else append = CodePoints.Utf16ToString(found);
-		
-		out.append(new LiteralText(append).setStyle(MinecraftStyle.NoStyle));
-		
-		lastIndex = matcher.end();
-		
-		return lastIndex;
+		return text;
 	}
 }

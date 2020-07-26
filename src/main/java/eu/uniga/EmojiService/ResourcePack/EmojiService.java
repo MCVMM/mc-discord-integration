@@ -40,7 +40,6 @@ public class EmojiService
 	private final Set<Guild> _servers = new HashSet<>();
 	private final Object _serversLock = new Object();
 	private List<Emote> _emotes = new ArrayList<>();
-	private long _lastEmoteId = 0;
 	private final Object _emotesLock = new Object();
 	private final Timer _timer;
 	
@@ -48,7 +47,7 @@ public class EmojiService
 	private int[][] _emoteCodepointAtlas = new int[0][0];
 	private Map<String, Integer> _emoteIDsTranslation = new HashMap<>();
 	private String _hash = "";
-	private IResourcePackReloadable _reloadable;
+	private final IResourcePackReloadable _reloadable;
 	
 	public EmojiService(IResourcePackReloadable reloadable)
 	{
