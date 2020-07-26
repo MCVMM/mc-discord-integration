@@ -16,7 +16,7 @@ import java.util.UUID;
 @Mixin(PlayerManager.class)
 public class MessagesMixin
 {
-	private EmojiTransform tmpTransform = new EmojiTransform(DiscordIntegrationMod.dictionary());
+	private final EmojiTransform tmpTransform = new EmojiTransform(DiscordIntegrationMod.dictionary());
 	
 	@ModifyArgs(at = @At("INVOKE"), method = "broadcastChatMessage")
 	private void broadcastChatMessage(Args args, Text message, MessageType type, UUID senderUuid) {

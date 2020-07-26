@@ -2,7 +2,7 @@ package eu.uniga.MessageTransforms.MinecraftToMinecraft;
 
 import net.minecraft.text.TranslatableText;
 
-public interface IMessageTransform
+public interface IMinecraftToMinecraftTransform
 {
 	TranslatableText Transform(TranslatableText text);
 }

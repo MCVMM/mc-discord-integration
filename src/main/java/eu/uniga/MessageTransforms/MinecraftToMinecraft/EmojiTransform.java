@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EmojiTransform implements IMessageTransform
+public class EmojiTransform implements IMinecraftToMinecraftTransform
 {
 	private final SurrogatePairsDictionary _emojiDictionary;
 	private final Pattern _pattern = Pattern.compile("(:[a-zA-Z0-9\\-_]+?:)");

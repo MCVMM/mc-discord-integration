@@ -5,7 +5,7 @@ import eu.uniga.MessageTransforms.SurrogatePairsDictionary;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EmojiTransform implements IMessageTransform
+public class EmojiTransform implements IMinecraftToDiscordTransform
 {
 	private final SurrogatePairsDictionary _emojiDictionary;
 	private final Pattern _pattern = Pattern.compile("(:[a-zA-Z0-9\\-_]+?:)");
