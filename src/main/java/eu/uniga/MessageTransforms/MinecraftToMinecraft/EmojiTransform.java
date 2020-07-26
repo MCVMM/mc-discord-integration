@@ -47,7 +47,6 @@ public class EmojiTransform implements IMessageTransform
 		String textPart = text.getString();
 		
 		Matcher matcher = _pattern.matcher(textPart);
-		StringBuilder buffer = new StringBuilder();
 		
 		if (matcher.find())
 		{
