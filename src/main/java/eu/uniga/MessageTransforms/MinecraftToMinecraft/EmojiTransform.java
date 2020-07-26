@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class EmojiTransform implements IMessageTransform
 {
 	private final SurrogatePairsDictionary _emojiDictionary;
-	private final Pattern _pattern = Pattern.compile("(<:[a-zA-Z0-9\\-_]+?:\\d+?>+|:[a-zA-Z0-9\\-_]+?:)");
+	private final Pattern _pattern = Pattern.compile("(:[a-zA-Z0-9\\-_]+?:)");
 	
 	public EmojiTransform(SurrogatePairsDictionary emojiDictionary)
 	{
