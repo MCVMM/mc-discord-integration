@@ -36,7 +36,6 @@ public class TickExecuter
 		{
 			for (IFunction action : _buffer)
 			{
-				Thread t = Thread.currentThread();
 				action.Call();
 			}
 			

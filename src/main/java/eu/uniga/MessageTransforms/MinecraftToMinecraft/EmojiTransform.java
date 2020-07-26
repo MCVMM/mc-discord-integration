@@ -1,6 +1,5 @@
 package eu.uniga.MessageTransforms.MinecraftToMinecraft;
 
-import eu.uniga.MessageTransforms.IMessageTransform;
 import eu.uniga.MessageTransforms.SurrogatePairsDictionary;
 import eu.uniga.Utils.CodePoints;
 import eu.uniga.Utils.MinecraftStyle;
@@ -24,7 +23,6 @@ public class EmojiTransform implements IMessageTransform
 	@Override
 	public TranslatableText Transform(TranslatableText text)
 	{
-		//return  text;
 		return TransformText(text);
 	}
 	
