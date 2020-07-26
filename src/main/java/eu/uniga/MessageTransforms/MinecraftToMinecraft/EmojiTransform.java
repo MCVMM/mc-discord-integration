@@ -2,7 +2,7 @@ package eu.uniga.MessageTransforms.MinecraftToMinecraft;
 
 import eu.uniga.MessageTransforms.IMessageTransform;
 import eu.uniga.MessageTransforms.SurrogatePairsDictionary;
-import eu.uniga.Utils.Codepoints;
+import eu.uniga.Utils.CodePoints;
 import eu.uniga.Utils.MinecraftStyle;
 import net.minecraft.text.*;
 
@@ -85,7 +85,7 @@ public class EmojiTransform implements IMessageTransform
 		String append;
 		
 		if (found == null) append = matcher.group(1);
-		else append = Codepoints.Utf16ToString(found);
+		else append = CodePoints.Utf16ToString(found);
 		
 		out.append(new LiteralText(append).setStyle(MinecraftStyle.NoStyle));
 		

@@ -10,13 +10,12 @@ import java.util.*;
 import java.util.List;
 import java.util.Timer;
 
-import eu.uniga.Utils.Codepoints;
+import eu.uniga.Utils.CodePoints;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 
@@ -98,7 +97,7 @@ public class EmojiService
 			
 			for (int x = 0; x < codepointAtlas[y].length; x++)
 			{
-				formattedAtlas.append(Codepoints.Utf16ToEscapedString(codepointAtlas[y][x]));
+				formattedAtlas.append(CodePoints.Utf16ToEscapedString(codepointAtlas[y][x]));
 			}
 			
 			formattedAtlas.append("\"");

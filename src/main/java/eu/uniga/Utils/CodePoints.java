@@ -2,7 +2,7 @@ package eu.uniga.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
-public class Codepoints
+public class CodePoints
 {
 	public static @NotNull String Utf16ToEscapedString(int utf16)
 	{
