@@ -23,6 +23,7 @@ object DiscordIntegrationMod {
   var minecraftServer : MinecraftServer = _
   var dictionary : SurrogatePairsDictionary = _
   var tmpEmoji : EmojiTransform = _
+  var tmpEmoji2 : eu.uniga.MessageTransforms.DiscordToMinecraft.EmojiTransform = _
 }
 
 class DiscordIntegrationMod extends ModInitializer {
@@ -56,6 +57,7 @@ class DiscordIntegrationMod extends ModInitializer {
     // Start translation dictionary
     DiscordIntegrationMod.dictionary = new SurrogatePairsDictionary()
     DiscordIntegrationMod.tmpEmoji = new EmojiTransform(DiscordIntegrationMod.dictionary)
+    DiscordIntegrationMod.tmpEmoji2 = new eu.uniga.MessageTransforms.DiscordToMinecraft.EmojiTransform(DiscordIntegrationMod.dictionary)
 
     // Add delegate for registering new channels on the fly
     DiscordIntegrationMod.emojiService = new EmojiService(new IResourcePackReloadable {

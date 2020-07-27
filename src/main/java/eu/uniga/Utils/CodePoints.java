@@ -19,7 +19,6 @@ public class CodePoints
 	
 	public static @NotNull String Utf16ToString(int utf16)
 	{
-		
 		short left = (short)((utf16 & 0xFFFF0000) >> 16);
 		short right = (short)utf16;
 		
@@ -29,5 +28,4 @@ public class CodePoints
 		
 		return out;
 	}
-
 }

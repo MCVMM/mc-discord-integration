@@ -3,6 +3,7 @@ package eu.uniga.discord
 import java.util.UUID
 import java.util.stream.Collectors
 
+import eu.uniga.DiscordIntegrationMod
 import net.dv8tion.jda.api.entities.{TextChannel, VoiceChannel}
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
@@ -11,7 +12,7 @@ import net.minecraft.network.MessageType
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.{LiteralText, Style}
+import net.minecraft.text.{LiteralText, Style, TranslatableText}
 
 import scala.collection.mutable
 
@@ -28,7 +29,8 @@ class DiscordMessageEventListener(private val channel: TextChannel) extends List
       if (messagesToDispatch.nonEmpty) {
         // Send all queued messages
         for (message <- messagesToDispatch) {
-          val text = new LiteralText(message)
+          // TODO: proper name and message separation
+          val text = DiscordIntegrationMod.tmpEmoji2.Transform(new TranslatableText("chat.type.text", message.split(": ")(0) + ":", message.split(": ")(1)))
           val packet = new GameMessageS2CPacket(
             text.setStyle(Style.EMPTY),
             MessageType.CHAT,
@@ -71,10 +73,10 @@ class DiscordMessageEventListener(private val channel: TextChannel) extends List
     if (!shouldHandle(event)) return
 
     val sender = event.getAuthor.getAsTag
-    val content = event.getMessage.getContentDisplay
+    val content = event.getMessage.getContentRaw
 
     // TODO: message formatting, emoji resolving?
-    messagesToDispatch.add(s"[$sender]: $content")
+    messagesToDispatch.add(s"$sender: $content")
   }
 
   private def shouldHandle(event: GuildMessageReceivedEvent): Boolean =
