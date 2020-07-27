@@ -5,7 +5,7 @@ import java.util
 import eu.uniga.EmojiService.ResourcePack.EmojiService
 import eu.uniga.EmojiService.ResourcePack.EmojiService.IResourcePackReloadable
 import eu.uniga.MessageTransforms.MinecraftToMinecraft.EmojiTransform
-import eu.uniga.MessageTransforms.SurrogatePairsDictionary
+import eu.uniga.MessageTransforms.{SurrogatePairsDictionary, Transforms}
 import eu.uniga.Utils.TickExecuter
 import eu.uniga.Web.SimpleWebServer
 import eu.uniga.config.UnigaConfigurationLoader
@@ -22,8 +22,7 @@ object DiscordIntegrationMod {
   var emojiService : EmojiService = _
   var minecraftServer : MinecraftServer = _
   var dictionary : SurrogatePairsDictionary = _
-  var tmpEmoji : EmojiTransform = _
-  var tmpEmoji2 : eu.uniga.MessageTransforms.DiscordToMinecraft.EmojiTransform = _
+  var transforms : Transforms = _
 }
 
 class DiscordIntegrationMod extends ModInitializer {
@@ -56,8 +55,7 @@ class DiscordIntegrationMod extends ModInitializer {
 
     // Start translation dictionary
     DiscordIntegrationMod.dictionary = new SurrogatePairsDictionary()
-    DiscordIntegrationMod.tmpEmoji = new EmojiTransform(DiscordIntegrationMod.dictionary)
-    DiscordIntegrationMod.tmpEmoji2 = new eu.uniga.MessageTransforms.DiscordToMinecraft.EmojiTransform(DiscordIntegrationMod.dictionary)
+    DiscordIntegrationMod.transforms = new Transforms(DiscordIntegrationMod.dictionary)
 
     // Add delegate for registering new channels on the fly
     DiscordIntegrationMod.emojiService = new EmojiService(new IResourcePackReloadable {

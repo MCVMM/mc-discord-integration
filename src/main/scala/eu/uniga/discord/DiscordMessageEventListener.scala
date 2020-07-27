@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.event.server.{ServerStartCallback, ServerStopCall
 import net.minecraft.network.MessageType
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.{LiteralText, Style, TranslatableText}
 
 import scala.collection.mutable
@@ -30,7 +29,7 @@ class DiscordMessageEventListener(private val channel: TextChannel) extends List
         // Send all queued messages
         for (message <- messagesToDispatch) {
           // TODO: proper name and message separation
-          val text = DiscordIntegrationMod.tmpEmoji2.Transform(new TranslatableText("chat.type.text", message.split(": ")(0), message.split(": ")(1)))
+          val text = DiscordIntegrationMod.transforms.DiscordToMinecraft(new TranslatableText("chat.type.text", message.split(": ")(0), message.split(": ")(1)))
           val packet = new GameMessageS2CPacket(
             text.setStyle(Style.EMPTY),
             MessageType.CHAT,
