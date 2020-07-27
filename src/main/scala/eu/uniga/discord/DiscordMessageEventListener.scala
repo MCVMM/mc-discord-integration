@@ -30,7 +30,7 @@ class DiscordMessageEventListener(private val channel: TextChannel) extends List
         // Send all queued messages
         for (message <- messagesToDispatch) {
           // TODO: proper name and message separation
-          val text = DiscordIntegrationMod.tmpEmoji2.Transform(new TranslatableText("chat.type.text", message.split(": ")(0) + ":", message.split(": ")(1)))
+          val text = DiscordIntegrationMod.tmpEmoji2.Transform(new TranslatableText("chat.type.text", message.split(": ")(0), message.split(": ")(1)))
           val packet = new GameMessageS2CPacket(
             text.setStyle(Style.EMPTY),
             MessageType.CHAT,

@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class EmojiTransform implements IDiscordToMinecraftTransform
 {
 	private final SurrogatePairsDictionary _emojiDictionary;
-	private final Pattern _pattern = Pattern.compile("(<a?:[a-zA-Z0-9\\-_]+?:\\d+?>+?|[\\x{20a0}-\\x{32ff}]|[\\x{1f000}-\\x{1ffff}]|[\\x{fe4e5}-\\x{fe4ee}])", Pattern.UNICODE_CHARACTER_CLASS);
+	private final Pattern _pattern = Pattern.compile("(<a??:[a-zA-Z0-9\\-_]+?:\\d+?>+?|[\\x{20a0}-\\x{32ff}]|[\\x{1f000}-\\x{1ffff}]|[\\x{fe4e5}-\\x{fe4ee}])", Pattern.UNICODE_CHARACTER_CLASS);
 	
 	public EmojiTransform(SurrogatePairsDictionary emojiDictionary)
 	{
