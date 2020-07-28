@@ -16,7 +16,7 @@ class MinecraftServerMixin {
   def sendMessage(text: Text, id: UUID, callback: CallbackInfo): Unit = {
 
     // Format the message (from translatable text eg.) and send it to the Discord channel
-    DiscordIntegrationMod.bot.sendChatMessage(format(text))
+    // DiscordIntegrationMod.bot.sendChatMessage(format(text))
   }
 
   // TODO: do a proper formatting based on the text class (as Text is general interface implemented by a shit ton of concrete classes in MC)

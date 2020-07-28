@@ -16,9 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      {
-        "value": "eu.uniga.DiscordIntegrationMod"
-      }
+      "eu.uniga.DiscordIntegrationMod"
     ]
   },
   "mixins": [
