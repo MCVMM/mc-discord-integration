@@ -58,7 +58,7 @@ public class EmojiTransform implements IMinecraftToMinecraftTransform
 				
 				Style style = MinecraftStyle.NoStyle
 								.withInsertion(matcher.group(1))
-								.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(matcher.group(1))));
+								.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(matcher.group(1))));
 				
 				out.append(new LiteralText(CodePoints.Utf16ToString(foundEmote)).setStyle(style));
 			}

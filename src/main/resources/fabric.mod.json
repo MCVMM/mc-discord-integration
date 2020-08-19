@@ -5,7 +5,8 @@
   "name": "Uniga Discord Integration",
   "description": "This mod allows monitoring the server status and online players to Uniga discord.",
   "authors": [
-    "0x4a697a6b61"
+    "0x4a697a6b61",
+    "NějakejTomáš"
   ],
   "contact": {
     "homepage": "https://uniga.eu/",

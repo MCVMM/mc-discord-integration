@@ -60,7 +60,7 @@ public class EmojiTransform implements IDiscordToMinecraftTransform
 				Style style;
 				if (shortName != null) style = MinecraftStyle.NoStyle
 								.withInsertion(shortName)
-								.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(shortName)));
+								.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(shortName)));
 				else style = MinecraftStyle.NoStyle;
 				
 				out.append(new LiteralText(CodePoints.Utf16ToString(foundEmote)).setStyle(style));
