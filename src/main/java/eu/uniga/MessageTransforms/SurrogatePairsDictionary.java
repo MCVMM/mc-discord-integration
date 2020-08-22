@@ -47,18 +47,18 @@ public class SurrogatePairsDictionary
 	}
 	
 	// TODO: How to find emotes?
-	public Integer GetSurrogatePairFromDiscord(String shortName)
+	public Integer GetSurrogatePairFromDiscord(String discord)
 	{
-		if (shortName.length() > 2) return _discordToSurrogatePairDynamic.get(shortName);
+		if (discord.length() > 2) return _discordToSurrogatePairDynamic.get(discord);
 		
 		// Emoji codepoint
 		int codepoint;
-		codepoint = shortName.charAt(0);
+		codepoint = discord.charAt(0);
 		
-		if (shortName.length() == 2)
+		if (discord.length() == 2)
 		{
 			codepoint <<= 16;
-			codepoint |= shortName.charAt(1);
+			codepoint |= discord.charAt(1);
 		}
 		
 		return codepoint;
