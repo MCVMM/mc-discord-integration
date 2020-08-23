@@ -9,4 +9,4 @@ pluginManagement {
     }
 }
 
-include 'PureSimpleAST'
+include 'MinecraftTextCompatibleSimpleAST'

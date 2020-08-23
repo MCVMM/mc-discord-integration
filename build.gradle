@@ -37,7 +37,7 @@ dependencies {
 	compile 'com.typesafe:config:1.4.0'
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
-	implementation project(':PureSimpleAST')
+	implementation project(':MinecraftTextCompatibleSimpleAST')
 }
 
 repositories {

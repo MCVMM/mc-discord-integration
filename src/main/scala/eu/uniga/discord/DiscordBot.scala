@@ -2,7 +2,7 @@ package eu.uniga.discord
 
 import eu.uniga.config.UnigaConfiguration
 import eu.uniga.exceptions.InvalidConfigurationException
-import net.dv8tion.jda.api.{JDABuilder, Permission}
+import net.dv8tion.jda.api.{JDA, JDABuilder, Permission}
 import net.dv8tion.jda.api.entities.{Guild, TextChannel}
 
 class DiscordBot(configuration: UnigaConfiguration) {
@@ -11,7 +11,7 @@ class DiscordBot(configuration: UnigaConfiguration) {
   private var onChannelAdd: Guild => Unit = _
 
   // The discord client used to connect to Uniga and repost in-game message as well as update the server status
-  private val client = JDABuilder.createDefault(configuration.token).build().awaitReady()
+  val client: JDA = JDABuilder.createDefault(configuration.token).build().awaitReady()
 
   {
     // Bind desired channels based on the provided configuration

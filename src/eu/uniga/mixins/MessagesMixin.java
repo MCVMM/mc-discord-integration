@@ -24,8 +24,7 @@ public class MessagesMixin
 				if (args.size() == 3)
 				{
 					DiscordIntegrationMod.bot().sendChatMessage(DiscordIntegrationMod.transforms().MinecraftToDiscord(message.getString()));
-					args.set(0, new TranslatableText("chat.type.text", ((TranslatableText)message).getArgs()[0], DiscordIntegrationMod.transforms().FromString((String)((TranslatableText)message).getArgs()[1])));
-					//args.set(0, DiscordIntegrationMod.transforms().MinecraftToMinecraft(((TranslatableText)message).getArgs()[1]));
+					args.set(0, DiscordIntegrationMod.transforms().MinecraftToMinecraft((TranslatableText)message));
 				}
 				break;
 			case SYSTEM:
