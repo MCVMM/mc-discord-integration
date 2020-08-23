@@ -4,8 +4,7 @@ import java.util
 
 import eu.uniga.EmojiService.ResourcePack.EmojiService
 import eu.uniga.EmojiService.ResourcePack.EmojiService.IResourcePackReloadable
-import eu.uniga.MessageTransforms.MinecraftToMinecraft.EmojiTransform
-import eu.uniga.MessageTransforms.{SurrogatePairsDictionary, Transforms}
+import eu.uniga.MessageTransforms.{FormattingContext, SurrogatePairsDictionary, Transforms}
 import eu.uniga.Utils.TickExecuter
 import eu.uniga.Web.SimpleWebServer
 import eu.uniga.config.UnigaConfigurationLoader
@@ -23,6 +22,7 @@ object DiscordIntegrationMod {
   var minecraftServer : MinecraftServer = _
   var dictionary : SurrogatePairsDictionary = _
   var transforms : Transforms = _
+  var formattingContext : FormattingContext = _
 }
 
 class DiscordIntegrationMod extends ModInitializer {
@@ -65,6 +65,9 @@ class DiscordIntegrationMod extends ModInitializer {
     })
     DiscordIntegrationMod.bot.addDelegate(DiscordIntegrationMod.emojiService.AddChannel)
     DiscordIntegrationMod.emojiService.Start(30 * 1000)
+
+    // Add formatting context (for translating emotes, names, etc.)
+    DiscordIntegrationMod.formattingContext = new FormattingContext(DiscordIntegrationMod.bot.client, DiscordIntegrationMod.dictionary)
 
     // Start bot (which will add channel)
     DiscordIntegrationMod.bot.start()

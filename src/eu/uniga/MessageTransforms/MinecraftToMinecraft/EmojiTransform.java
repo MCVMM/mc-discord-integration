@@ -1,4 +1,4 @@
-package eu.uniga.MessageTransforms.DiscordToMinecraft;
+package eu.uniga.MessageTransforms.MinecraftToMinecraft;
 
 import eu.uniga.MessageTransforms.SurrogatePairsDictionary;
 import eu.uniga.Utils.CodePoints;
@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EmojiTransform implements IDiscordToMinecraftTransform
+public class EmojiTransform implements IMinecraftToMinecraftTransform
 {
 	private final SurrogatePairsDictionary _emojiDictionary;
-	private final Pattern _pattern = Pattern.compile("(<a??:[a-zA-Z0-9\\-_]+?:\\d+?>+?|[\\x{20a0}-\\x{32ff}]|[\\x{1f000}-\\x{1ffff}]|[\\x{fe4e5}-\\x{fe4ee}])", Pattern.UNICODE_CHARACTER_CLASS);
+	private final Pattern _pattern = Pattern.compile("(:[a-zA-Z0-9\\-_]+?:)");
 	
 	public EmojiTransform(SurrogatePairsDictionary emojiDictionary)
 	{
@@ -42,7 +42,7 @@ public class EmojiTransform implements IDiscordToMinecraftTransform
 		{
 			String pre = textPart.substring(lastIndex, matcher.start());
 			String found = textPart.substring(matcher.start(), matcher.end());
-			Integer foundEmote = _emojiDictionary.GetSurrogatePairFromDiscord(found);
+			Integer foundEmote = _emojiDictionary.GetSurrogatePairFromShortName(found);
 			
 			if (foundEmote == null)
 			{
@@ -56,12 +56,9 @@ public class EmojiTransform implements IDiscordToMinecraftTransform
 				if (out == null) out = new LiteralText(pre);
 				else out.append(new LiteralText(pre));
 				
-				String shortName = _emojiDictionary.GetShortNameFromDiscord(matcher.group(1));
-				Style style;
-				if (shortName != null) style = MinecraftStyle.NoStyle
-								.withInsertion(shortName)
-								.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(shortName)));
-				else style = MinecraftStyle.NoStyle;
+				Style style = MinecraftStyle.NoStyle
+								.withInsertion(matcher.group(1))
+								.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(matcher.group(1))));
 				
 				out.append(new LiteralText(CodePoints.Utf16ToString(foundEmote)).setStyle(style));
 			}

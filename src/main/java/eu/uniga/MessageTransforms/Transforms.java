@@ -1,44 +1,75 @@
 package eu.uniga.MessageTransforms;
 
-import eu.uniga.MessageTransforms.DiscordToMinecraft.IDiscordToMinecraftTransform;
-import eu.uniga.MessageTransforms.MinecraftToDiscord.IMinecraftToDiscordTransform;
-import eu.uniga.MessageTransforms.MinecraftToMinecraft.IMinecraftToMinecraftTransform;
-import net.minecraft.text.TranslatableText;
+import com.discord.core.markdown.SimpleMarkdownRules;
+import com.discord.core.node.Node;
+import com.discord.core.parser.Parser;
+import eu.uniga.DiscordIntegrationMod;
+import eu.uniga.MessageTransforms.Rules.*;
+import net.minecraft.text.LiteralText;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Transforms
 {
+	private final TextEmojiTransform _minecraftToDiscordTransform;
+	private final Parser<FormattingContext, Node<FormattingContext>, ParseState> _parser;
+	
 	public Transforms(SurrogatePairsDictionary dictionary)
 	{
-		_minecraftToDiscordTransforms.add(new eu.uniga.MessageTransforms.MinecraftToDiscord.EmojiTransform(dictionary));
-		_minecraftToMinecraftTransforms.add(new eu.uniga.MessageTransforms.MinecraftToMinecraft.EmojiTransform(dictionary));
-		_discordToMinecraftTransforms.add(new eu.uniga.MessageTransforms.DiscordToMinecraft.EmojiTransform(dictionary));
+		_minecraftToDiscordTransform = new TextEmojiTransform(dictionary);
+		_parser =  new Parser<FormattingContext, Node<FormattingContext>, ParseState>()
+						.addRule(new BlockQuoteRule<>())
+						.addRule(new CodeBlockRule<>())
+						.addRule(new InlineCodeBlockRule<>())
+						.addRule(new SpoilerRule<>())
+						.addRule(new URLRule<>(false))
+						.addRule(new URLRule<>(true))
+						.addRule(new DiscordEmojiRule<>())
+						.addRule(new EmojiRule<>())
+						.addRule(new UnicodeEmojiRule<>())
+						.addRule(new EscapeEscapeRule<>())
+						.addRule(new ChannelMentionRule<>())
+						.addRule(new RoleMentionRule<>())
+						.addRule(new UserMentionRule<>())
+						.addRule(new MultipleMentionRule<>())
+						.addRules(SimpleMarkdownRules.createSimpleMarkdownRules());
 	}
-	
-	private final List<IMinecraftToDiscordTransform> _minecraftToDiscordTransforms = new ArrayList<>();
-	private final List<IMinecraftToMinecraftTransform> _minecraftToMinecraftTransforms = new ArrayList<>();
-	private final List<IDiscordToMinecraftTransform> _discordToMinecraftTransforms = new ArrayList<>();
 	
 	public String MinecraftToDiscord(String text)
 	{
-		for (IMinecraftToDiscordTransform transform : _minecraftToDiscordTransforms) text = transform.Transform(text);
-		
-		return text;
+		return _minecraftToDiscordTransform.Transform(text);
 	}
 	
-	public TranslatableText MinecraftToMinecraft(TranslatableText text)
+	private static class ParseState implements IParserState<ParseState>
 	{
-		for (IMinecraftToMinecraftTransform transform : _minecraftToMinecraftTransforms) text = transform.Transform(text);
+		private final boolean _isInQuote;
 		
-		return text;
+		public ParseState(boolean isInQuote)
+		{
+			_isInQuote = isInQuote;
+		}
+		
+		@Override
+		public ParseState NewBlockQuoteState(boolean isInQuote)
+		{
+			return new ParseState(isInQuote);
+		}
+		
+		@Override
+		public boolean IsInQuote()
+		{
+			return _isInQuote;
+		}
 	}
 	
-	public TranslatableText DiscordToMinecraft(TranslatableText text)
+	public LiteralText FromString(CharSequence text)
 	{
-		for (IDiscordToMinecraftTransform transform : _discordToMinecraftTransforms) text = transform.Transform(text);
+		List<Node<FormattingContext>> output = _parser.parse(text, new ParseState(false));
 		
-		return text;
+		LiteralText formattedText = new LiteralText("");
+		
+		output.forEach(node -> formattedText.append(node.format(DiscordIntegrationMod.formattingContext())));
+		
+		return formattedText;
 	}
 }

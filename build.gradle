@@ -2,6 +2,7 @@ plugins {
 	id 'scala'
 	id 'fabric-loom' version '0.4-SNAPSHOT'
 	id 'maven-publish'
+	id 'org.jetbrains.kotlin.jvm' version '1.4.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -34,10 +35,15 @@ dependencies {
 
     // Config parsing library
 	compile 'com.typesafe:config:1.4.0'
+	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+	implementation project(':MinecraftTextCompatibleSimpleAST')
 }
 
 repositories {
 	jcenter()
+	google()
+	mavenCentral()
 }
 
 processResources {

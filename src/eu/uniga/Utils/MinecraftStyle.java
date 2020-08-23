@@ -12,13 +12,12 @@ import java.lang.reflect.Constructor;
 public class MinecraftStyle
 {
 	public static Style NoStyle;
-	private static Constructor<Style> constructor;
 	
 	static
 	{
 		try
 		{
-			constructor = Style.class.getDeclaredConstructor(
+			Constructor<Style> constructor = Style.class.getDeclaredConstructor(
 							TextColor.class,
 							Boolean.class,
 							Boolean.class,
