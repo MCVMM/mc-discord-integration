@@ -4,6 +4,8 @@ import com.discord.core.markdown.SimpleMarkdownRules;
 import com.discord.core.node.Node;
 import com.discord.core.parser.Parser;
 import eu.uniga.EmojiService.SurrogatePairsDictionary;
+import eu.uniga.MessageTransforms.Nodes.BlockQuoteNode;
+import eu.uniga.MessageTransforms.Nodes.CodeBlockNode;
 import eu.uniga.MessageTransforms.Rules.*;
 import net.minecraft.text.LiteralText;
 
@@ -70,8 +72,17 @@ public class MessagesTransforms
 		
 		LiteralText formattedText = new LiteralText("");
 		
+		if (ShouldInsertNewLine(output)) formattedText.append(new LiteralText("\n"));
 		output.forEach(node -> formattedText.append(node.format(_formattingContext)));
 		
 		return formattedText;
+	}
+	
+	private boolean ShouldInsertNewLine(List<Node<FormattingContext>> ast)
+	{
+		if (ast.size() == 0) return false;
+		
+		Node<FormattingContext> first = ast.get(0);
+		return first instanceof BlockQuoteNode || first instanceof CodeBlockNode;
 	}
 }

@@ -10,6 +10,7 @@ import eu.uniga.Utils.TickExecuter;
 import eu.uniga.EmojiService.WebServer.SimpleWebServer;
 import eu.uniga.MessageEvents.Events;
 import eu.uniga.MessageEvents.IMinecraftChatMessage;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -24,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -61,8 +63,29 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 			// **Callback from JDA thread**
 			_discordBot = new DiscordBot(Config.GetConfig(), (member, message) -> _tickExecuter.ExecuteNextTick(() ->
 			{
+				List<Message.Attachment> attachments = message.getAttachments();
+				LiteralText minecraftFormattedAttachments = new LiteralText("");
+				StringBuilder discordFormattedAttachmentsBuilder = new StringBuilder();
+				
+				if (attachments.size() != 0)
+				{
+					attachments.forEach(attachment ->
+					{
+						discordFormattedAttachmentsBuilder.append(attachment.getUrl()).append("\n");
+						minecraftFormattedAttachments.append(new LiteralText("[" + attachment.getFileName() + "] ").setStyle(Style.EMPTY
+										.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(attachment.getUrl())))
+										.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, attachment.getUrl()))
+										.withColor(TextColor.fromRgb(0xFF0000))));
+					});
+				}
+				
+				String discordFormattedAttachments = discordFormattedAttachmentsBuilder.toString();
+				
 				// Resend message to other channels, skip original
+				if (discordFormattedAttachments.compareTo("") != 0) _discordBot.SendMessage(member.getEffectiveName(), discordFormattedAttachments, message.getChannel().getIdLong());
 				_discordBot.SendMessage(member.getEffectiveName(), message.getContentDisplay(), message.getChannel().getIdLong());
+				
+				minecraftFormattedAttachments.append(_messagesTransforms.FromString(message.getContentRaw()));
 				
 				LiteralText formattedName = (LiteralText)new LiteralText(member.getEffectiveName()).setStyle(Style.EMPTY
 								.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY, new HoverEvent.EntityContent(EntityType.FISHING_BOBBER, new UUID(0, member.getIdLong()), new LiteralText(member.getEffectiveName()))))
@@ -72,7 +95,7 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 				TranslatableText formattedMessage = new TranslatableText(
 								"chat.type.text",
 								formattedName,
-								_messagesTransforms.FromString(message.getContentRaw()));
+								minecraftFormattedAttachments);
 				
 				_minecraftServer.sendSystemMessage(formattedMessage, SenderUUID);
 				_minecraftServer.getPlayerManager().sendToAll(new GameMessageS2CPacket(formattedMessage, MessageType.CHAT, SenderUUID));
