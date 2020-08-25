@@ -4,7 +4,7 @@ import eu.uniga.Config.Config;
 import eu.uniga.Discord.DiscordBot;
 import eu.uniga.EmojiService.EmojiService;
 import eu.uniga.MessageTransforms.FormattingContext;
-import eu.uniga.MessageTransforms.SurrogatePairsDictionary;
+import eu.uniga.EmojiService.SurrogatePairsDictionary;
 import eu.uniga.MessageTransforms.MessagesTransforms;
 import eu.uniga.Utils.TickExecuter;
 import eu.uniga.EmojiService.WebServer.SimpleWebServer;
@@ -80,7 +80,7 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 			// Try to start emoji related stuff, if it fails, continue without it
 			try
 			{
-				if (Config.GetConfig().AreEmotesEnabled()) EnableCustomEmotes();
+				if (Config.GetConfig().GetCustomEmoji().AreEmotesEnabled()) EnableCustomEmotes();
 			}
 			catch (Exception e)
 			{
@@ -105,11 +105,11 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 	private void EnableCustomEmotes() throws IOException
 	{
 		// Start integrated webserver
-		_webServer = new SimpleWebServer(Config.GetConfig().GetWebserverPort(), EmojiService.ResourcePackLocation);
+		_webServer = new SimpleWebServer(Config.GetConfig().GetCustomEmoji().GetWebserverPort(), EmojiService.ResourcePackLocation);
 		_webServer.Start();
 		
 		// Add delegate for registering new channels on the fly
-		_emojiService = new EmojiService(new EmojiService.IResourcePackReloadable()
+		_emojiService = new EmojiService(Config.GetConfig().GetCustomEmoji().GetSize(), new EmojiService.IResourcePackReloadable()
 		{
 			@Override
 			public void Reload(String url, String sha1)
@@ -126,7 +126,6 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 		});
 		
 		// Add delegate, on channel added register channel to emoji service
-		// TODO: on channel remove
 		_discordBot.SetEmojiCallback(new DiscordBot.EmojiCallback()
 		{
 			@Override
@@ -178,7 +177,7 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 	@Override
 	public TranslatableText OnMessageSent(TranslatableText message, UUID sender)
 	{
-		_discordBot.SendMessage(((LiteralText)message.getArgs()[0]).asString(), (String)message.getArgs()[1]);
+		_discordBot.SendMessage(((LiteralText)message.getArgs()[0]).asString(), _messagesTransforms.MinecraftToDiscord((String)message.getArgs()[1]));
 		return new TranslatableText("chat.type.text", message.getArgs()[0], _messagesTransforms.FromString((String)message.getArgs()[1]));
 	}
 }

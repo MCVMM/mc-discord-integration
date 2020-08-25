@@ -12,7 +12,7 @@ import java.nio.file.Path;
 
 public class Loader
 {
-	private static final String Location = "uniga-discord-integration2.json";
+	private static final String Location = "uniga-discord-integration.json";
 	private static Config _config;
 	private static final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 	

@@ -17,16 +17,8 @@ public class Config
 	private long[] _channels;
 	
 	@Expose
-	@SerializedName("Integrated webserver port")
-	private int _webserverPort;
-	
-	@Expose
-	@SerializedName("Force reload resource pack")
-	private boolean _forceReloadResourcePack;
-	
-	@Expose
-	@SerializedName("Enable custom emoji related stuff")
-	private boolean _emotesEnabled;
+	@SerializedName("Custom emoji")
+	private CustomEmoji _customEmoji;
 	
 	/***
 	 * Getters -----------------------------------------------------------------------------------------------------------
@@ -41,19 +33,9 @@ public class Config
 		return _channels;
 	}
 	
-	public int GetWebserverPort()
+	public CustomEmoji GetCustomEmoji()
 	{
-		return _webserverPort;
-	}
-	
-	public boolean ShouldForceReloadResourcePack()
-	{
-		return _forceReloadResourcePack;
-	}
-	
-	public boolean AreEmotesEnabled()
-	{
-		return _emotesEnabled;
+		return _customEmoji;
 	}
 	
 	/**
@@ -75,9 +57,7 @@ public class Config
 		
 		config._token = "Insert discord token from https://discord.com/developers/applications/";
 		config._channels = new long[0];
-		config._webserverPort = 80;
-		config._forceReloadResourcePack = false;
-		config._emotesEnabled = true;
+		config._customEmoji = CustomEmoji.GetDefault();
 		
 		return config;
 	}

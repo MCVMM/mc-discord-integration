@@ -17,16 +17,17 @@ import java.util.*;
 public final class BitmapGenerator
 {
 	// TODO: move to config
-	private final int EmoteSize = 128;
+	private final int EmoteSize;
 	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 	
 	private final Collection<Emote> _emotes;
-	private final int _size;
+	private final int _bitmapSize;
 	
-	public BitmapGenerator(Collection<Emote> emotes)
+	public BitmapGenerator(int emoteSize, Collection<Emote> emotes)
 	{
 		_emotes = emotes;
-		_size = (int)Math.ceil(Math.sqrt(_emotes.size()));
+		_bitmapSize = (int)Math.ceil(Math.sqrt(_emotes.size()));
+		EmoteSize = emoteSize;
 	}
 	
 	/**
@@ -35,7 +36,7 @@ public final class BitmapGenerator
 	 */
 	public BufferedImage GetEmoteBitmapAtlas()
 	{
-		BufferedImage atlasImage = new BufferedImage(_size * EmoteSize, _size * EmoteSize, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage atlasImage = new BufferedImage(_bitmapSize * EmoteSize, _bitmapSize * EmoteSize, BufferedImage.TYPE_INT_ARGB);
 		Graphics graphics = atlasImage.getGraphics();
 		int position = 0;
 		
@@ -61,7 +62,7 @@ public final class BitmapGenerator
 	{
 		int codepoint = 0xE000; // PUA block in BMP, 6400 code points, should be enough (That's 104MP image)
 		int position = 0;
-		int[][] codepointAtlas = new int[_size][_size];
+		int[][] codepointAtlas = new int[_bitmapSize][_bitmapSize];
 		
 		for (Emote emote : _emotes)
 		{
@@ -145,7 +146,7 @@ public final class BitmapGenerator
 	// Gets position in atlas (2D array)
 	private Point GetAtlasPosition(int position)
 	{
-		return new Point(position % _size, position / _size);
+		return new Point(position % _bitmapSize, position / _bitmapSize);
 	}
 	
 	// Copies emote image into it's position in atlas

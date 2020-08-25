@@ -1,5 +1,6 @@
 package eu.uniga.MessageTransforms;
 
+import eu.uniga.EmojiService.SurrogatePairsDictionary;
 import net.dv8tion.jda.api.JDA;
 
 import javax.annotation.Nonnull;

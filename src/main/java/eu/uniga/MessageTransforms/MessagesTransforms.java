@@ -3,6 +3,7 @@ package eu.uniga.MessageTransforms;
 import com.discord.core.markdown.SimpleMarkdownRules;
 import com.discord.core.node.Node;
 import com.discord.core.parser.Parser;
+import eu.uniga.EmojiService.SurrogatePairsDictionary;
 import eu.uniga.MessageTransforms.Rules.*;
 import net.minecraft.text.LiteralText;
 
