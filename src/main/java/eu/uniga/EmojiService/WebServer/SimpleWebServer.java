@@ -1,10 +1,11 @@
-package eu.uniga.Web;
+package eu.uniga.EmojiService.WebServer;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import eu.uniga.EmojiService.ResourcePack.EmojiService;
+import eu.uniga.EmojiService.EmojiService;
+import eu.uniga.NewDiscordIntegrationMod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,13 +17,13 @@ import java.nio.file.Path;
 public final class SimpleWebServer
 {
 	private HttpServer _server;
-	private final Logger _logger = LogManager.getLogger();
+	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 	private String _context;
 	private Path _file;
 	private HttpContext _httpContext;
 	private Handler _handler;
 	
-	public SimpleWebServer(int port, Path file)
+	public SimpleWebServer(int port, Path file) throws IOException
 	{
 		_file = file;
 		
@@ -30,9 +31,9 @@ public final class SimpleWebServer
 		{
 			_server = HttpServer.create(new InetSocketAddress(port), 0);
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
-			_logger.warn("Cannot start resource pack server", e);
+			_logger.warn("Cannot start resource pack server: {}", e.getLocalizedMessage());
 		}
 		
 		_handler = new Handler();
@@ -59,7 +60,7 @@ public final class SimpleWebServer
 	
 	class Handler implements HttpHandler
 	{
-		private final Logger _logger = LogManager.getLogger();
+		private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 		
 		@Override
 		public void handle(HttpExchange exchange)
@@ -72,7 +73,7 @@ public final class SimpleWebServer
 					exchange.getResponseBody().close();
 				} catch (IOException e)
 				{
-					_logger.warn("Connection error", e);
+					_logger.warn("Connection error: {}", e.getLocalizedMessage());
 				}
 				
 				return;
@@ -87,7 +88,7 @@ public final class SimpleWebServer
 			}
 			catch (IOException e)
 			{
-				_logger.warn("Error reading resource pack", e);
+				_logger.warn("Error reading resource pack: {}", e.getLocalizedMessage());
 			}
 			
 			try
@@ -96,9 +97,8 @@ public final class SimpleWebServer
 			}
 			catch (IOException e)
 			{
-				_logger.warn("Connection error", e);
+				_logger.warn("Connection error: {}", e.getLocalizedMessage());
 			}
-			
 		}
 	}
 }

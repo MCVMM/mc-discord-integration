@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 
 public class FormattingContext
 {
+	// TODO: box better
 	private final JDA _client;
 	private final SurrogatePairsDictionary _dictionary;
 	

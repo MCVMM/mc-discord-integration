@@ -1,4 +1,4 @@
-package eu.uniga.EmojiService.ResourcePack;
+package eu.uniga.EmojiService;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
@@ -10,6 +10,9 @@ import java.util.*;
 import java.util.List;
 import java.util.Timer;
 
+import eu.uniga.EmojiService.ResourcePack.BitmapGenerator;
+import eu.uniga.EmojiService.ResourcePack.Zip;
+import eu.uniga.NewDiscordIntegrationMod;
 import eu.uniga.Utils.CodePoints;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
@@ -34,7 +37,7 @@ public class EmojiService
 		Yes,
 	}
 	
-	private final Logger _logger = LogManager.getLogger();
+	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 	private static final String AtlasName = "discord-emoji";
 	public static final Path ResourcePackLocation = Paths.get("resource-pack.zip");
 	private final Set<Guild> _servers = new HashSet<>();
@@ -55,11 +58,19 @@ public class EmojiService
 		_timer = new Timer(true);
 	}
 	
-	public void AddChannel(Guild channel)
+	public void AddGuild(Guild guild)
 	{
 		synchronized (_serversLock)
 		{
-			_servers.add(channel);
+			_servers.add(guild);
+		}
+	}
+	
+	public void RemoveGuild(Guild guild)
+	{
+		synchronized (_serversLock)
+		{
+			_servers.remove(guild);
 		}
 	}
 	
@@ -134,7 +145,7 @@ public class EmojiService
 		}
 		catch (IOException e)
 		{
-			_logger.warn("Error creating resource pack", e);
+			_logger.warn("Error creating resource pack: {}", e.getLocalizedMessage());
 		}
 	}
 	
@@ -162,7 +173,7 @@ public class EmojiService
 			
 			Random random = new Random();
 			String url = "http://localhost/resource-pack" + random.nextInt();
-			_logger.info("Reloading resource pack, url: " + url + " hash: " + _hash);
+			_logger.info("Reloading resource pack, url: {} hash: {}", url, _hash);
 			
 			if (changed == EmotesChanged.Yes) _reloadable.Reload(url, _hash);
 			_reloadable.UpdateDictionary(_emoteIDsTranslation);

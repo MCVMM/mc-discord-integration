@@ -1,5 +1,7 @@
 package eu.uniga.EmojiService.ResourcePack;
 
+import eu.uniga.EmojiService.EmojiService;
+import eu.uniga.NewDiscordIntegrationMod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,7 +20,7 @@ import java.util.zip.ZipOutputStream;
 
 public final class Zip
 {
-	private final Logger _logger = LogManager.getLogger();
+	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 	private final ZipOutputStream _stream;
 	
 	public Zip() throws IOException
@@ -62,12 +64,12 @@ public final class Zip
 			}
 			catch (NoSuchAlgorithmException e)
 			{
-				_logger.warn("SHA-1 does not exist", e);
+				_logger.warn("SHA-1 does not exist");
 			}
 		}
 		catch (IOException e)
 		{
-			_logger.warn("Cannot read resource pack and make SHA-1", e);
+			_logger.warn("Cannot read resource pack and make SHA-1");
 		}
 		
 		return hash;

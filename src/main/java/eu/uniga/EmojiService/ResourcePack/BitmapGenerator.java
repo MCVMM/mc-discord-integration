@@ -1,9 +1,9 @@
 package eu.uniga.EmojiService.ResourcePack;
 
+import eu.uniga.NewDiscordIntegrationMod;
 import net.dv8tion.jda.api.entities.Emote;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -16,8 +16,9 @@ import java.util.*;
 
 public final class BitmapGenerator
 {
+	// TODO: move to config
 	private final int EmoteSize = 128;
-	private final Logger _logger = LogManager.getLogger();
+	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 	
 	private final Collection<Emote> _emotes;
 	private final int _size;
@@ -133,7 +134,7 @@ public final class BitmapGenerator
 		}
 		catch (IOException e)
 		{
-			_logger.warn("Error downloading " + emote.getImageUrl(), e);
+			_logger.warn("Error downloading {} {}", emote.getImageUrl(), e.getLocalizedMessage());
 			
 			return null;
 		}
