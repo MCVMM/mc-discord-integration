@@ -2,6 +2,7 @@ package eu.uniga;
 
 import eu.uniga.Config.Config;
 import eu.uniga.Discord.DiscordBot;
+import eu.uniga.Discord.DiscordMessagesHandler;
 import eu.uniga.EmojiService.EmojiService;
 import eu.uniga.MessageTransforms.FormattingContext;
 import eu.uniga.EmojiService.SurrogatePairsDictionary;
@@ -10,14 +11,10 @@ import eu.uniga.Utils.TickExecuter;
 import eu.uniga.EmojiService.WebServer.SimpleWebServer;
 import eu.uniga.MessageEvents.Events;
 import eu.uniga.MessageEvents.IMinecraftChatMessage;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.EntityType;
-import net.minecraft.network.MessageType;
-import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.*;
 import org.apache.logging.log4j.LogManager;
@@ -25,13 +22,11 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatMessage
 {
-	private static final UUID SenderUUID = new UUID(0, 666);
 	public static final String Name = "DiscordIntegrationMod";
 	private final Logger _logger = LogManager.getLogger(Name);
 	private MinecraftServer _minecraftServer;
@@ -59,50 +54,17 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 		
 		try
 		{
-			// Load the bot configuration and setup Discord connection via JDA
-			// **Callback from JDA thread**
-			_discordBot = new DiscordBot(Config.GetConfig(), (member, message) -> _tickExecuter.ExecuteNextTick(() ->
-			{
-				List<Message.Attachment> attachments = message.getAttachments();
-				LiteralText minecraftFormattedAttachments = new LiteralText("");
-				StringBuilder discordFormattedAttachmentsBuilder = new StringBuilder();
-				
-				if (attachments.size() != 0)
-				{
-					attachments.forEach(attachment ->
-					{
-						discordFormattedAttachmentsBuilder.append(attachment.getUrl()).append("\n");
-						minecraftFormattedAttachments.append(new LiteralText("[" + attachment.getFileName() + "] ").setStyle(Style.EMPTY
-										.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(attachment.getUrl())))
-										.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, attachment.getUrl()))
-										.withColor(TextColor.fromRgb(0xFF0000))));
-					});
-				}
-				
-				String discordFormattedAttachments = discordFormattedAttachmentsBuilder.toString();
-				
-				// Resend message to other channels, skip original
-				if (discordFormattedAttachments.compareTo("") != 0) _discordBot.SendMessage(member.getEffectiveName(), discordFormattedAttachments, message.getChannel().getIdLong());
-				_discordBot.SendMessage(member.getEffectiveName(), message.getContentDisplay(), message.getChannel().getIdLong());
-				
-				minecraftFormattedAttachments.append(_messagesTransforms.FromString(message.getContentRaw()));
-				
-				LiteralText formattedName = (LiteralText)new LiteralText(member.getEffectiveName()).setStyle(Style.EMPTY
-								.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY, new HoverEvent.EntityContent(EntityType.FISHING_BOBBER, new UUID(0, member.getIdLong()), new LiteralText(member.getEffectiveName()))))
-								.withInsertion(member.getAsMention())
-								.withColor(TextColor.fromRgb(member.getColorRaw())));
-				
-				TranslatableText formattedMessage = new TranslatableText(
-								"chat.type.text",
-								formattedName,
-								minecraftFormattedAttachments);
-				
-				_minecraftServer.sendSystemMessage(formattedMessage, SenderUUID);
-				_minecraftServer.getPlayerManager().sendToAll(new GameMessageS2CPacket(formattedMessage, MessageType.CHAT, SenderUUID));
-			}));
-			
 			// Start translation dictionary
 			_dictionary = new SurrogatePairsDictionary();
+			
+			// Load the bot configuration and setup Discord connection via JDA
+			_discordBot = new DiscordBot(Config.GetConfig());
+			
+			// Create new message transforms
+			_messagesTransforms = new MessagesTransforms(_dictionary, new FormattingContext(_discordBot.GetClient(), _dictionary));
+			
+			// Add messages callback
+			_discordBot.SetMessageHandler(new DiscordMessagesHandler(_minecraftServer, _discordBot, _tickExecuter, _messagesTransforms));
 			
 			// Try to start emoji related stuff, if it fails, continue without it
 			try
@@ -113,9 +75,6 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 			{
 				_logger.error("Cannot start custom emoji services: {}", e.getLocalizedMessage());
 			}
-			
-			// Create new message transforms
-			_messagesTransforms = new MessagesTransforms(_dictionary, new FormattingContext(_discordBot.GetClient(), _dictionary));
 			
 			// Register Minecraft chat messages callback
 			Events.SetMinecraftChatMessageCallback(this);

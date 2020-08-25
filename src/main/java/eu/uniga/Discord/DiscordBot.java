@@ -31,7 +31,7 @@ public class DiscordBot extends ListenerAdapter
 	
 	public interface IMessageCallback
 	{
-		void OnMessage(@NotNull Member author, @NotNull Message message);
+		void OnMessage(@NotNull Member member, @NotNull Message message);
 	}
 	
 	private final Config _config;
@@ -39,14 +39,14 @@ public class DiscordBot extends ListenerAdapter
 	private final Set<TextChannel> _channels = new HashSet<>();
 	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 	private EmojiCallback _emojiCallback = new EmojiCallback() { };
-	private final IMessageCallback _messageCallback;
+	private IMessageCallback _messageCallback;
+	private final Object _messageCallbackLock = new Object();
 	
-	public DiscordBot(Config config, IMessageCallback messageCallback) throws LoginException, InterruptedException
+	public DiscordBot(Config config) throws LoginException, InterruptedException
 	{
 		_config = config;
 		_jda = JDABuilder.createDefault(_config.GetToken()).build().awaitReady();
 		_jda.addEventListener(this);
-		_messageCallback = messageCallback;
 	}
 	
 	public void Start()
@@ -74,6 +74,14 @@ public class DiscordBot extends ListenerAdapter
 		
 		// Signal change of emote
 		_emojiCallback.OnEmoteChange();
+	}
+	
+	public void SetMessageHandler(IMessageCallback messageCallback)
+	{
+		synchronized (_messageCallbackLock)
+		{
+			_messageCallback = messageCallback;
+		}
 	}
 	
 	public void Stop()
@@ -135,7 +143,10 @@ public class DiscordBot extends ListenerAdapter
 	{
 		if (event.isWebhookMessage() || event.getAuthor().isBot()) return;
 		
-		_messageCallback.OnMessage(event.getMember(), event.getMessage());
+		synchronized (_messageCallbackLock)
+		{
+			_messageCallback.OnMessage(event.getMember(), event.getMessage());
+		}
 	}
 	
 	@Override
