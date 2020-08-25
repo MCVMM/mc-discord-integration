@@ -64,7 +64,7 @@ public class EmojiService
 		_emojiSize = config.GetSize();
 		
 		String hostname = config.GetWebserverHostname();
-		if (hostname == null || hostname.compareTo("") == 0) hostname = "http://localhost/";
+		if (hostname == null || hostname.compareTo("") == 0) hostname = "localhost";
 		
 		_url = new URL("http", hostname, config.GetWebserverReportedPort(), "");
 		
