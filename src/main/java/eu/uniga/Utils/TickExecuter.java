@@ -1,11 +1,11 @@
 package eu.uniga.Utils;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Thread safe way to execute code on server thread
+ */
 public class TickExecuter
 {
 	public interface IFunction
@@ -14,15 +14,14 @@ public class TickExecuter
 	}
 	
 	private final List<IFunction> _buffer;
-	private final Logger _logger;
 	
 	public TickExecuter()
 	{
-		_logger = LogManager.getLogger();
 		_buffer = new ArrayList<>();
 	}
 	
-	public void Add(IFunction action)
+	// Thread safe
+	public void ExecuteNextTick(IFunction action)
 	{
 		synchronized (_buffer)
 		{
@@ -30,6 +29,7 @@ public class TickExecuter
 		}
 	}
 	
+	// Call from server threa
 	public void RunAll()
 	{
 		synchronized (_buffer)

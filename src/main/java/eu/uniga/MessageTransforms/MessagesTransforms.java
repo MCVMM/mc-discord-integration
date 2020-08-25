@@ -3,18 +3,21 @@ package eu.uniga.MessageTransforms;
 import com.discord.core.markdown.SimpleMarkdownRules;
 import com.discord.core.node.Node;
 import com.discord.core.parser.Parser;
-import eu.uniga.DiscordIntegrationMod;
+import eu.uniga.EmojiService.SurrogatePairsDictionary;
+import eu.uniga.MessageTransforms.Nodes.BlockQuoteNode;
+import eu.uniga.MessageTransforms.Nodes.CodeBlockNode;
 import eu.uniga.MessageTransforms.Rules.*;
 import net.minecraft.text.LiteralText;
 
 import java.util.List;
 
-public class Transforms
+public class MessagesTransforms
 {
 	private final TextEmojiTransform _minecraftToDiscordTransform;
 	private final Parser<FormattingContext, Node<FormattingContext>, ParseState> _parser;
+	private final FormattingContext _formattingContext;
 	
-	public Transforms(SurrogatePairsDictionary dictionary)
+	public MessagesTransforms(SurrogatePairsDictionary dictionary, FormattingContext formattingContext)
 	{
 		_minecraftToDiscordTransform = new TextEmojiTransform(dictionary);
 		_parser =  new Parser<FormattingContext, Node<FormattingContext>, ParseState>()
@@ -33,6 +36,7 @@ public class Transforms
 						.addRule(new UserMentionRule<>())
 						.addRule(new MultipleMentionRule<>())
 						.addRules(SimpleMarkdownRules.createSimpleMarkdownRules());
+		_formattingContext = formattingContext;
 	}
 	
 	public String MinecraftToDiscord(String text)
@@ -68,8 +72,17 @@ public class Transforms
 		
 		LiteralText formattedText = new LiteralText("");
 		
-		output.forEach(node -> formattedText.append(node.format(DiscordIntegrationMod.formattingContext())));
+		if (ShouldInsertNewLine(output)) formattedText.append(new LiteralText("\n"));
+		output.forEach(node -> formattedText.append(node.format(_formattingContext)));
 		
 		return formattedText;
+	}
+	
+	private boolean ShouldInsertNewLine(List<Node<FormattingContext>> ast)
+	{
+		if (ast.size() == 0) return false;
+		
+		Node<FormattingContext> first = ast.get(0);
+		return first instanceof BlockQuoteNode || first instanceof CodeBlockNode;
 	}
 }

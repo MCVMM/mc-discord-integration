@@ -1,4 +1,4 @@
-package eu.uniga.MessageTransforms;
+package eu.uniga.EmojiService;
 
 import eu.uniga.Utils.CodePoints;
 
@@ -17,6 +17,9 @@ public class SurrogatePairsDictionary
 	public void Set(Map<String, Integer> dictionary)
 	{
 		_discordToSurrogatePairDynamic.clear();
+		_shortNameToDiscordDynamic.clear();
+		_discordToShortNameDynamic.clear();
+		_shortNameToSurrogatePairDynamic.clear();
 		
 		dictionary.forEach(this::AddToDictionaries);
 	}
@@ -29,7 +32,10 @@ public class SurrogatePairsDictionary
 		String shortName = oldShortName;
 		int attempt = 0;
 		
-		while (_shortNameToDiscordDynamic.containsKey(shortName)) shortName = oldShortName + "-" + ++attempt;
+		while (_shortNameToDiscordDynamic.containsKey(shortName))
+		{
+			shortName = oldShortName.substring(0, oldShortName.length() - 1) + "-" + ++attempt + ":";
+		}
 		
 		_discordToSurrogatePairDynamic.put(discordString, surrogatePair);
 		_shortNameToDiscordDynamic.put(shortName, discordString);
@@ -37,7 +43,6 @@ public class SurrogatePairsDictionary
 		_shortNameToSurrogatePairDynamic.put(shortName, surrogatePair);
 	}
 	
-	// TODO: static emotes
 	public Integer GetSurrogatePairFromShortName(String shortName)
 	{
 		Integer twemoji = _shortNameToSurrogatePair.get(shortName);
@@ -46,7 +51,6 @@ public class SurrogatePairsDictionary
 		else return _shortNameToSurrogatePair.get(shortName);
 	}
 	
-	// TODO: How to find emotes?
 	public Integer GetSurrogatePairFromDiscord(String discord)
 	{
 		if (discord.length() > 2) return _discordToSurrogatePairDynamic.get(discord);
@@ -64,7 +68,6 @@ public class SurrogatePairsDictionary
 		return codepoint;
 	}
 	
-	// TODO: How to find emotes?
 	public String GetShortNameFromDiscord(String discord)
 	{
 		if (discord.length() > 2) return _discordToShortNameDynamic.get(discord);

@@ -1,6 +1,6 @@
 package eu.uniga.MessageTransforms;
 
-import eu.uniga.MessageTransforms.SurrogatePairsDictionary;
+import eu.uniga.EmojiService.SurrogatePairsDictionary;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

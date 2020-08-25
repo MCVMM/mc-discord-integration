@@ -1,6 +1,7 @@
 package eu.uniga.mixins;
 
-import eu.uniga.DiscordIntegrationMod;
+import eu.uniga.MessageEvents.Events;
+import eu.uniga.MessageEvents.IMinecraftChatMessage;
 import net.minecraft.network.MessageType;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.text.Text;
@@ -19,13 +20,15 @@ public class MessagesMixin
 	private void broadcastChatMessage(Args args, Text message, MessageType type, UUID senderUuid) {
 		switch (type)
 		{
+			// Chat message sent by player
 			case CHAT:
 				// For some reason, this is called multiple times, and proper call have 3 args
 				if (args.size() == 3)
 				{
-					DiscordIntegrationMod.bot().sendChatMessage(DiscordIntegrationMod.transforms().MinecraftToDiscord(message.getString()));
-					args.set(0, new TranslatableText("chat.type.text", ((TranslatableText)message).getArgs()[0], DiscordIntegrationMod.transforms().FromString((String)((TranslatableText)message).getArgs()[1])));
-					//args.set(0, DiscordIntegrationMod.transforms().MinecraftToMinecraft(((TranslatableText)message).getArgs()[1]));
+					IMinecraftChatMessage chatMessage = Events.GetChatMessageCallback();
+					if (chatMessage == null) return;
+					
+					args.set(0, chatMessage.OnMessageSent((TranslatableText)message, senderUuid));
 				}
 				break;
 			case SYSTEM:
