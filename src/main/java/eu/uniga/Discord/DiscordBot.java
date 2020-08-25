@@ -17,8 +17,8 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DiscordBot extends ListenerAdapter
 {
@@ -36,7 +36,7 @@ public class DiscordBot extends ListenerAdapter
 	
 	private final Config _config;
 	private final JDA _jda;
-	private final List<TextChannel> _channels = new ArrayList<>();
+	private final Set<TextChannel> _channels = new HashSet<>();
 	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 	private EmojiCallback _emojiCallback = new EmojiCallback() { };
 	private final IMessageCallback _messageCallback;
@@ -64,13 +64,16 @@ public class DiscordBot extends ListenerAdapter
 				continue;
 			}
 			
-			Thread t = Thread.currentThread();
 			synchronized (_channels)
 			{
 				_channels.add(textChannel);
 			}
+			
 			_emojiCallback.OnChannelAdded(textChannel);
 		}
+		
+		// Signal change of emote
+		_emojiCallback.OnEmoteChange();
 	}
 	
 	public void Stop()
@@ -83,32 +86,42 @@ public class DiscordBot extends ListenerAdapter
 		return _jda;
 	}
 	
+	public void SendMessage(String author, String message, long skip)
+	{
+		synchronized (_channels)
+		{
+			for (TextChannel textChannel : _channels)
+			{
+				if (!textChannel.canTalk()) continue;
+				if (textChannel.getIdLong() == skip) continue;
+				
+				try
+				{
+					textChannel.sendMessage("<" + author + "> " + message).queue();
+				} catch (Exception ignored) { }
+			}
+		}
+	}
+	
 	public void SendMessage(String author, String message)
 	{
-		for (TextChannel textChannel : _channels)
-		{
-			if (!textChannel.canTalk()) continue;
-			
-			try
-			{
-				textChannel.sendMessage("<" + author + "> " + message).queue();
-			}
-			catch (Exception ignored) { }
-		}
+		SendMessage(author, message, 0);
 	}
 	
 	public void SetChannelTopic(String topic)
 	{
-		for (TextChannel textChannel : _channels)
+		synchronized (_channels)
 		{
-			// Skip channels that we can not manage
-			if (!textChannel.getGuild().getSelfMember().getPermissions(textChannel).contains(Permission.MANAGE_CHANNEL)) continue;
-			
-			try
+			for (TextChannel textChannel : _channels)
 			{
-				textChannel.getManager().setTopic(topic).queue();
+				// Skip channels that we can not manage
+				if (!textChannel.getGuild().getSelfMember().getPermissions(textChannel).contains(Permission.MANAGE_CHANNEL)) continue;
+				
+				try
+				{
+					textChannel.getManager().setTopic(topic).queue();
+				} catch (Exception ignored) { }
 			}
-			catch (Exception ignored) { }
 		}
 	}
 	
@@ -120,8 +133,6 @@ public class DiscordBot extends ListenerAdapter
 	@Override
 	public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event)
 	{
-		super.onGuildMessageReceived(event);
-		
 		if (event.isWebhookMessage() || event.getAuthor().isBot()) return;
 		
 		_messageCallback.OnMessage(event.getMember(), event.getMessage());
@@ -130,20 +141,17 @@ public class DiscordBot extends ListenerAdapter
 	@Override
 	public void onTextChannelDelete(@NotNull TextChannelDeleteEvent event)
 	{
-		super.onTextChannelDelete(event);
-		
 		synchronized (_channels)
 		{
 			_channels.remove(event.getChannel());
 		}
 		_emojiCallback.OnChannelRemoved(event.getChannel());
+		_emojiCallback.OnEmoteChange();
 	}
 	
 	@Override
 	public void onGenericEmote(@NotNull GenericEmoteEvent event)
 	{
-		super.onGenericEmote(event);
-		
 		_emojiCallback.OnEmoteChange();
 	}
 }

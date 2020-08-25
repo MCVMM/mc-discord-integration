@@ -58,8 +58,12 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 		try
 		{
 			// Load the bot configuration and setup Discord connection via JDA
+			// **Callback from JDA thread**
 			_discordBot = new DiscordBot(Config.GetConfig(), (member, message) -> _tickExecuter.ExecuteNextTick(() ->
 			{
+				// Resend message to other channels, skip original
+				_discordBot.SendMessage(member.getEffectiveName(), message.getContentDisplay(), message.getChannel().getIdLong());
+				
 				LiteralText formattedName = (LiteralText)new LiteralText(member.getEffectiveName()).setStyle(Style.EMPTY
 								.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY, new HoverEvent.EntityContent(EntityType.FISHING_BOBBER, new UUID(0, member.getIdLong()), new LiteralText(member.getEffectiveName()))))
 								.withInsertion(member.getAsMention())
@@ -111,12 +115,14 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 		// Add delegate for registering new channels on the fly
 		_emojiService = new EmojiService(Config.GetConfig().GetCustomEmoji().GetSize(), new EmojiService.IResourcePackReloadable()
 		{
+			// **Callback from emote thread**
 			@Override
 			public void Reload(String url, String sha1)
 			{
-				ChangeResourcePack(url, sha1);
+				_tickExecuter.ExecuteNextTick(() -> ChangeResourcePack(url, sha1));
 			}
 			
+			// **Callback from emote thread**
 			@Override
 			public void UpdateDictionary(Map<String, Integer> dictionary)
 			{
@@ -131,20 +137,27 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 			@Override
 			public void OnChannelAdded(@NotNull TextChannel channel)
 			{
-				super.OnChannelAdded(channel);
 				_emojiService.AddGuild(channel.getGuild());
 			}
 			
+			// **Callback from JDA thread**
 			@Override
 			public void OnChannelRemoved(@NotNull TextChannel channel)
 			{
-				super.OnChannelRemoved(channel);
 				_emojiService.RemoveGuild(channel.getGuild());
+			}
+			
+			// **Callback from JDA thread**
+			@Override
+			public void OnEmoteChange()
+			{
+				// Probably thread safe
+				_emojiService.StartNow();
 			}
 		});
 		
 		// TODO: make on event
-		_emojiService.Start(30 * 1000);
+		_emojiService.Start(30 * 60 * 1000);
 	}
 	
 	private void Stop(MinecraftServer minecraftServer)
@@ -159,19 +172,18 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 		_tickExecuter.RunAll();
 	}
 	
-	// Thread safe
 	private void ChangeResourcePack(String url, String sha1)
 	{
 		// Schedule resource pack change to server thread
-		_tickExecuter.ExecuteNextTick(() ->
+		_minecraftServer.setResourcePack(url, sha1);
+		String fileName = url.substring(url.lastIndexOf('/'));
+		_webServer.SetContext(fileName);
+		
+		// Force reload of resource pack to all players
+		if (Config.GetConfig().GetCustomEmoji().ShouldForceReloadResourcePack())
 		{
-			_minecraftServer.setResourcePack(url, sha1);
-			String fileName = url.substring(url.lastIndexOf('/'));
-			_webServer.SetContext(fileName);
-			
-			// Force reload of resource pack to all players, TODO: move to config
 			_minecraftServer.getPlayerManager().getPlayerList().forEach(player -> player.sendResourcePackUrl(url, sha1));
-  	});
+		}
 	}
 	
 	@Override
