@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -12,6 +14,7 @@ import java.util.Timer;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import eu.uniga.Config.CustomEmoji;
 import eu.uniga.EmojiService.ResourcePack.BitmapGenerator;
 import eu.uniga.EmojiService.ResourcePack.Zip;
 import eu.uniga.NewDiscordIntegrationMod;
@@ -28,7 +31,7 @@ public class EmojiService
 {
 	public interface IResourcePackReloadable
 	{
-		void Reload(String url, String sha1);
+		void Reload(URL url, String name, String sha1);
 		void UpdateDictionary(Map<String, Integer> dictionary);
 	}
 	
@@ -54,10 +57,17 @@ public class EmojiService
 	private final IResourcePackReloadable _reloadable;
 	private final int _emojiSize;
 	private final Grabber _grabber;
+	private final URL _url;
 	
-	public EmojiService(int emojiSize, IResourcePackReloadable reloadable)
+	public EmojiService(CustomEmoji config, IResourcePackReloadable reloadable) throws MalformedURLException
 	{
-		_emojiSize = emojiSize;
+		_emojiSize = config.GetSize();
+		
+		String hostname = config.GetWebserverHostname();
+		if (hostname == null || hostname.compareTo("") == 0) hostname = "http://localhost/";
+		
+		_url = new URL("http", hostname, config.GetWebserverReportedPort(), "");
+		
 		_reloadable = reloadable;
 		_timer = new Timer(true);
 		_grabber = new Grabber();
@@ -182,11 +192,10 @@ public class EmojiService
 			}
 			
 			Random random = new Random();
-			// TODO
-			String url = "http://localhost/resource-pack" + random.nextInt();
-			_logger.info("Reloading resource pack, url: {} hash: {}", url, _hash);
+			int randomInt = random.nextInt();
+			_logger.info("Reloading resource pack, url: {} hash: {}", _url.toString() + "/" + randomInt + "/" + ResourcePackLocation, _hash);
 			
-			if (changed == EmotesChanged.Yes) _reloadable.Reload(url, _hash);
+			if (changed == EmotesChanged.Yes) _reloadable.Reload(_url, randomInt + "/" + ResourcePackLocation, _hash);
 			_reloadable.UpdateDictionary(_emoteIDsTranslation);
 		}
 		

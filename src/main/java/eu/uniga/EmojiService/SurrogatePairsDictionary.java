@@ -51,7 +51,6 @@ public class SurrogatePairsDictionary
 		else return _shortNameToSurrogatePair.get(shortName);
 	}
 	
-	// TODO: How to find emotes?
 	public Integer GetSurrogatePairFromDiscord(String discord)
 	{
 		if (discord.length() > 2) return _discordToSurrogatePairDynamic.get(discord);

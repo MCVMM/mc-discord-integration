@@ -14,7 +14,15 @@ public class CustomEmoji
 	
 	@Expose
 	@SerializedName("Integrated webserver port")
-	private int _webserverPort;
+	private int _port;
+	
+	@Expose
+	@SerializedName("Integrated webserver hostname")
+	private String _hostname;
+	
+	@Expose
+	@SerializedName("Integrated webserver reported port")
+	private int _reportedPort;
 	
 	@Expose
 	@SerializedName("Force reload resource pack")
@@ -34,7 +42,17 @@ public class CustomEmoji
 	
 	public int GetWebserverPort()
 	{
-		return _webserverPort;
+		return _port;
+	}
+	
+	public String GetWebserverHostname()
+	{
+		return _hostname;
+	}
+	
+	public int GetWebserverReportedPort()
+	{
+		return _reportedPort;
 	}
 	
 	public boolean ShouldForceReloadResourcePack()
@@ -54,7 +72,9 @@ public class CustomEmoji
 	{
 		CustomEmoji customEmoji = new CustomEmoji();
 		
-		customEmoji._webserverPort = 80;
+		customEmoji._port = 80;
+		customEmoji._hostname = "localhost";
+		customEmoji._reportedPort = 80;
 		customEmoji._enabled = true;
 		customEmoji._forceReloadResourcePack = true;
 		customEmoji._size = 128;

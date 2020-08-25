@@ -16,7 +16,6 @@ import java.util.*;
 
 public final class BitmapGenerator
 {
-	// TODO: move to config
 	private final int EmoteSize;
 	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
 	

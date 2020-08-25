@@ -23,7 +23,7 @@ public final class SimpleWebServer
 	private HttpContext _httpContext;
 	private Handler _handler;
 	
-	public SimpleWebServer(int port, Path file) throws IOException
+	public SimpleWebServer(int port, Path file)
 	{
 		_file = file;
 		
@@ -52,6 +52,7 @@ public final class SimpleWebServer
 	
 	public void SetContext(String context)
 	{
+		if (!context.startsWith("/")) context = "/" + context;
 		_context = context;
 		HttpContext httpContext = _server.createContext(_context, _handler);
 		if (_httpContext != null) _server.removeContext(_httpContext);

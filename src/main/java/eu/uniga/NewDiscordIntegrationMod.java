@@ -21,7 +21,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 import java.util.UUID;
 
@@ -88,20 +89,26 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 		}
 	}
 	
-	private void EnableCustomEmotes() throws IOException
+	private void EnableCustomEmotes() throws MalformedURLException
 	{
 		// Start integrated webserver
 		_webServer = new SimpleWebServer(Config.GetConfig().GetCustomEmoji().GetWebserverPort(), EmojiService.ResourcePackLocation);
 		_webServer.Start();
 		
 		// Add delegate for registering new channels on the fly
-		_emojiService = new EmojiService(Config.GetConfig().GetCustomEmoji().GetSize(), new EmojiService.IResourcePackReloadable()
+		_emojiService = new EmojiService(Config.GetConfig().GetCustomEmoji(), new EmojiService.IResourcePackReloadable()
 		{
 			// **Callback from emote thread**
 			@Override
-			public void Reload(String url, String sha1)
+			public void Reload(URL url, String name, String sha1)
 			{
-				_tickExecuter.ExecuteNextTick(() -> ChangeResourcePack(url, sha1));
+				_tickExecuter.ExecuteNextTick(() ->
+				{
+					try
+					{
+						ChangeResourcePack(url, name, sha1);
+					} catch (MalformedURLException ignored) { }
+				});
 			}
 			
 			// **Callback from emote thread**
@@ -138,7 +145,6 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 			}
 		});
 		
-		// TODO: make on event
 		_emojiService.Start(30 * 60 * 1000);
 	}
 	
@@ -146,7 +152,7 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 	{
 		if (_webServer != null) _webServer.Stop();
 		if (_emojiService != null) _emojiService.Stop();
-		_discordBot.Stop();
+		if (_discordBot != null) _discordBot.Stop();
 	}
 	
 	private void Tick(MinecraftServer minecraftServer)
@@ -154,17 +160,18 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 		_tickExecuter.RunAll();
 	}
 	
-	private void ChangeResourcePack(String url, String sha1)
+	private void ChangeResourcePack(URL url, String name, String sha1) throws MalformedURLException
 	{
+		String fullUrl = (new URL(url, name)).toString();
+		
 		// Schedule resource pack change to server thread
-		_minecraftServer.setResourcePack(url, sha1);
-		String fileName = url.substring(url.lastIndexOf('/'));
-		_webServer.SetContext(fileName);
+		_minecraftServer.setResourcePack(fullUrl, sha1);
+		_webServer.SetContext(name);
 		
 		// Force reload of resource pack to all players
 		if (Config.GetConfig().GetCustomEmoji().ShouldForceReloadResourcePack())
 		{
-			_minecraftServer.getPlayerManager().getPlayerList().forEach(player -> player.sendResourcePackUrl(url, sha1));
+			_minecraftServer.getPlayerManager().getPlayerList().forEach(player -> player.sendResourcePackUrl(fullUrl, sha1));
 		}
 	}
 	
