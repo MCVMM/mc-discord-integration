@@ -5,6 +5,7 @@ import eu.uniga.NewDiscordIntegrationMod;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -116,8 +117,19 @@ public class DiscordBot extends ListenerAdapter
 		SendMessage(author, message, 0);
 	}
 	
-	public void SetChannelTopic(String topic)
+	public void SetChannelTopicPlayerCount(String[] current, int max)
 	{
+		StringBuilder topicBuilder = new StringBuilder();
+		
+		topicBuilder.append(String.format("**Minecraft server: %d/%d players -** \n", current.length, max));
+		
+		for (String player : current)
+		{
+			topicBuilder.append(player).append("\n");
+		}
+		
+		String topic = topicBuilder.substring(0, Math.min(topicBuilder.length(), 1023));
+		
 		synchronized (_channels)
 		{
 			for (TextChannel textChannel : _channels)
@@ -125,12 +137,20 @@ public class DiscordBot extends ListenerAdapter
 				// Skip channels that we can not manage
 				if (!textChannel.getGuild().getSelfMember().getPermissions(textChannel).contains(Permission.MANAGE_CHANNEL)) continue;
 				
+				
 				try
 				{
 					textChannel.getManager().setTopic(topic).queue();
 				} catch (Exception ignored) { }
 			}
 		}
+	}
+	
+	public void SetStatusPlayerCount(int current, int max)
+	{
+		String text = String.format("Minecraft server: %d/%d players", current, max);
+		
+		_jda.getPresence().setActivity(Activity.listening(text));
 	}
 	
 	public void SetEmojiCallback(EmojiCallback emojiCallback)

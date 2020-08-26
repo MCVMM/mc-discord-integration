@@ -146,6 +146,22 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 		});
 		
 		_emojiService.Start(30 * 60 * 1000);
+		
+		_tickExecuter.AddToExecuteEveryTick(minecraftServer ->
+		{
+			// Discord limit once per 10 seconds
+			if (minecraftServer.getTicks() % 210 != 0) return;
+			
+			_discordBot.SetStatusPlayerCount(minecraftServer.getCurrentPlayerCount(), minecraftServer.getMaxPlayerCount());
+		});
+		
+		_tickExecuter.AddToExecuteEveryTick(minecraftServer ->
+		{
+			// Discord limit twice per 10 minutes
+			if (minecraftServer.getTicks() % 6100 != 0) return;
+			
+			_discordBot.SetChannelTopicPlayerCount(minecraftServer.getPlayerNames(), minecraftServer.getMaxPlayerCount());
+		});
 	}
 	
 	private void Stop(MinecraftServer minecraftServer)
