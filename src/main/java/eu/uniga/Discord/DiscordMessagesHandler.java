@@ -18,14 +18,12 @@ import java.util.UUID;
 public class DiscordMessagesHandler implements DiscordBot.IMessageCallback
 {
 	private static final UUID SenderUUID = new UUID(0, 666);
-	private final MinecraftServer _minecraftServer;
 	private final DiscordBot _discordBot;
 	private final TickExecuter _tickExecuter;
 	private final MessagesTransforms _messagesTransforms;
 	
-	public DiscordMessagesHandler(MinecraftServer minecraftServer, DiscordBot discordBot, TickExecuter tickExecuter, MessagesTransforms messagesTransforms)
+	public DiscordMessagesHandler(DiscordBot discordBot, TickExecuter tickExecuter, MessagesTransforms messagesTransforms)
 	{
-		_minecraftServer = minecraftServer;
 		_discordBot = discordBot;
 		_tickExecuter = tickExecuter;
 		_messagesTransforms = messagesTransforms;
@@ -35,7 +33,7 @@ public class DiscordMessagesHandler implements DiscordBot.IMessageCallback
 	@Override
 	public void OnMessage(@NotNull Member member, @NotNull Message message)
 	{
-		_tickExecuter.ExecuteNextTick(() ->
+		_tickExecuter.ExecuteNextTick(minecraftServer ->
 		{
 			List<String> discordParts = FormatDiscord(member, message);
 			
@@ -48,8 +46,8 @@ public class DiscordMessagesHandler implements DiscordBot.IMessageCallback
 			
 			TranslatableText formattedMessage = FormatMinecraft(member, message);
 			
-			_minecraftServer.sendSystemMessage(formattedMessage, SenderUUID);
-			_minecraftServer.getPlayerManager().sendToAll(new GameMessageS2CPacket(formattedMessage, MessageType.CHAT, SenderUUID));
+			minecraftServer.sendSystemMessage(formattedMessage, SenderUUID);
+			minecraftServer.getPlayerManager().sendToAll(new GameMessageS2CPacket(formattedMessage, MessageType.CHAT, SenderUUID));
 		});
 	}
 	

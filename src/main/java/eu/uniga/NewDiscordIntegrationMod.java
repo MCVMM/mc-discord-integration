@@ -65,7 +65,7 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 			_messagesTransforms = new MessagesTransforms(_dictionary, new FormattingContext(_discordBot.GetClient(), _dictionary));
 			
 			// Add messages callback
-			_discordBot.SetMessageHandler(new DiscordMessagesHandler(_minecraftServer, _discordBot, _tickExecuter, _messagesTransforms));
+			_discordBot.SetMessageHandler(new DiscordMessagesHandler(_discordBot, _tickExecuter, _messagesTransforms));
 			
 			// Try to start emoji related stuff, if it fails, continue without it
 			try
@@ -102,7 +102,7 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 			@Override
 			public void Reload(URL url, String name, String sha1)
 			{
-				_tickExecuter.ExecuteNextTick(() ->
+				_tickExecuter.ExecuteNextTick(minecraftServer ->
 				{
 					try
 					{
@@ -116,7 +116,7 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 			public void UpdateDictionary(Map<String, Integer> dictionary)
 			{
 				// Emotes changed, swap dictionary, on server thread
-				_tickExecuter.ExecuteNextTick(() -> _dictionary.Set(dictionary));
+				_tickExecuter.ExecuteNextTick(minecraftServer -> _dictionary.Set(dictionary));
 			}
 		});
 		
@@ -157,7 +157,8 @@ public class NewDiscordIntegrationMod implements ModInitializer, IMinecraftChatM
 	
 	private void Tick(MinecraftServer minecraftServer)
 	{
-		_tickExecuter.RunAll();
+		// We are on server thread, execute queued work
+		_tickExecuter.RunAll(minecraftServer);
 	}
 	
 	private void ChangeResourcePack(URL url, String name, String sha1) throws MalformedURLException
