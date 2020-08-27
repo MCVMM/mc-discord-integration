@@ -82,8 +82,10 @@ public final class DiscordIntegrationMod implements Runnable, IMinecraftChatHand
 		
 		while (!Thread.interrupted())
 		{
-			Process();
+			if (!Process()) break;
 		}
+		
+		Stop();
 	}
 	
 	// Load config and init all parts of the mod
@@ -131,6 +133,13 @@ public final class DiscordIntegrationMod implements Runnable, IMinecraftChatHand
 		_discordBot.Start();
 	}
 	
+	private void Stop()
+	{
+		_webServer.Stop();
+		_emojiService.Stop();
+		_discordBot.Stop();
+	}
+	
 	private void EnableCustomEmotes() throws MalformedURLException
 	{
 		// Start integrated webserver
@@ -141,7 +150,7 @@ public final class DiscordIntegrationMod implements Runnable, IMinecraftChatHand
 		_emojiService = new EmojiService(_config.GetCustomEmoji(), this, _discordBot.GetClient());
 	}
 	
-	private void Process()
+	private boolean Process()
 	{
 		while (!ShouldProcess())
 		{
@@ -153,15 +162,18 @@ public final class DiscordIntegrationMod implements Runnable, IMinecraftChatHand
 				}
 				catch (InterruptedException e)
 				{
-					return;
+					return false;
 				}
 			}
 		}
 		
+		// At this point, at least one of these have at least one thing to do
 		ProcessMinecraftMessages();
 		ProcessDiscordMessages();
 		ProcessDictionary();
 		ProcessEmojiChange();
+		
+		return true;
 	}
 	
 	private boolean ShouldProcess()

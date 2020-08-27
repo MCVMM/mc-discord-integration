@@ -19,7 +19,7 @@ public class NewDiscordIntegrationMod implements ModInitializer
 	
 	private void Start(MinecraftServer minecraftServer)
 	{
-		_mod = new Thread(DiscordIntegrationMod.CreateInstance(minecraftServer));
+		_mod = new Thread(DiscordIntegrationMod.CreateInstance(minecraftServer), DiscordIntegrationMod.Name + " main thread");
 		_mod.start();
 	}
 	
