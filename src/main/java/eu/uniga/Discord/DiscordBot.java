@@ -1,13 +1,12 @@
 package eu.uniga.Discord;
 
 import eu.uniga.Config.Config;
-import eu.uniga.NewDiscordIntegrationMod;
+import eu.uniga.DiscordIntegrationMod;
+import eu.uniga.IDiscordHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.emote.GenericEmoteEvent;
@@ -23,29 +22,16 @@ import java.util.Set;
 
 public class DiscordBot extends ListenerAdapter
 {
-	public static abstract class EmojiCallback
-	{
-		public void OnChannelAdded(@NotNull TextChannel channel) { }
-		public void OnChannelRemoved(@NotNull TextChannel channel) { }
-		public void OnEmoteChange() { }
-	}
-	
-	public interface IMessageCallback
-	{
-		void OnMessage(@NotNull Member member, @NotNull Message message);
-	}
-	
 	private final Config _config;
 	private final JDA _jda;
 	private final Set<TextChannel> _channels = new HashSet<>();
-	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
-	private EmojiCallback _emojiCallback = new EmojiCallback() { };
-	private IMessageCallback _messageCallback;
-	private final Object _messageCallbackLock = new Object();
+	private final Logger _logger = LogManager.getLogger(DiscordIntegrationMod.Name);
+	private final IDiscordHandler _discordHandler;
 	
-	public DiscordBot(Config config) throws LoginException, InterruptedException
+	public DiscordBot(Config config, IDiscordHandler discordHandler) throws LoginException, InterruptedException
 	{
 		_config = config;
+		_discordHandler = discordHandler;
 		_jda = JDABuilder.createDefault(_config.GetToken()).build().awaitReady();
 		_jda.addEventListener(this);
 	}
@@ -69,20 +55,10 @@ public class DiscordBot extends ListenerAdapter
 			{
 				_channels.add(textChannel);
 			}
-			
-			_emojiCallback.OnChannelAdded(textChannel);
 		}
 		
 		// Signal change of emote
-		_emojiCallback.OnEmoteChange();
-	}
-	
-	public void SetMessageHandler(IMessageCallback messageCallback)
-	{
-		synchronized (_messageCallbackLock)
-		{
-			_messageCallback = messageCallback;
-		}
+		_discordHandler.OnEmojiChange();
 	}
 	
 	public void Stop()
@@ -153,20 +129,12 @@ public class DiscordBot extends ListenerAdapter
 		_jda.getPresence().setActivity(Activity.listening(text));
 	}
 	
-	public void SetEmojiCallback(EmojiCallback emojiCallback)
-	{
-		_emojiCallback = emojiCallback;
-	}
-	
 	@Override
 	public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event)
 	{
 		if (event.isWebhookMessage() || event.getAuthor().isBot()) return;
 		
-		synchronized (_messageCallbackLock)
-		{
-			_messageCallback.OnMessage(event.getMember(), event.getMessage());
-		}
+		_discordHandler.OnDiscordMessage(event.getMember(), event.getMessage());
 	}
 	
 	@Override
@@ -176,13 +144,13 @@ public class DiscordBot extends ListenerAdapter
 		{
 			_channels.remove(event.getChannel());
 		}
-		_emojiCallback.OnChannelRemoved(event.getChannel());
-		_emojiCallback.OnEmoteChange();
+		
+		_discordHandler.OnEmojiChange();
 	}
 	
 	@Override
 	public void onGenericEmote(@NotNull GenericEmoteEvent event)
 	{
-		_emojiCallback.OnEmoteChange();
+		_discordHandler.OnEmojiChange();
 	}
 }

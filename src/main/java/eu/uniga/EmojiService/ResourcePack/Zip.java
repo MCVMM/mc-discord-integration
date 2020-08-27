@@ -1,7 +1,7 @@
 package eu.uniga.EmojiService.ResourcePack;
 
+import eu.uniga.DiscordIntegrationMod;
 import eu.uniga.EmojiService.EmojiService;
-import eu.uniga.NewDiscordIntegrationMod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,7 +20,7 @@ import java.util.zip.ZipOutputStream;
 
 public final class Zip
 {
-	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
+	private final Logger _logger = LogManager.getLogger(DiscordIntegrationMod.Name);
 	private final ZipOutputStream _stream;
 	
 	public Zip() throws IOException

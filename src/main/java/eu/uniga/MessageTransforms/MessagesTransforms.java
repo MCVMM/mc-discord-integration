@@ -44,6 +44,11 @@ public class MessagesTransforms
 		return _minecraftToDiscordTransform.Transform(text);
 	}
 	
+	public SurrogatePairsDictionary GetDictionary()
+	{
+		return _formattingContext.GetDictionary();
+	}
+	
 	private static class ParseState implements IParserState<ParseState>
 	{
 		private final boolean _isInQuote;

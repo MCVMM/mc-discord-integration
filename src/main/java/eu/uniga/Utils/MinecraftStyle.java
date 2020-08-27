@@ -1,6 +1,6 @@
 package eu.uniga.Utils;
 
-import eu.uniga.NewDiscordIntegrationMod;
+import eu.uniga.DiscordIntegrationMod;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
@@ -35,7 +35,7 @@ public class MinecraftStyle
 		}
 		catch (Exception e)
 		{
-			LogManager.getLogger(NewDiscordIntegrationMod.Name).error(e);
+			LogManager.getLogger(DiscordIntegrationMod.Name).error(e);
 		}
 	}
 }

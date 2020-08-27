@@ -4,8 +4,8 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import eu.uniga.DiscordIntegrationMod;
 import eu.uniga.EmojiService.EmojiService;
-import eu.uniga.NewDiscordIntegrationMod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,7 +17,7 @@ import java.nio.file.Path;
 public final class SimpleWebServer
 {
 	private HttpServer _server;
-	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
+	private final Logger _logger = LogManager.getLogger(DiscordIntegrationMod.Name);
 	private String _context;
 	private Path _file;
 	private HttpContext _httpContext;
@@ -61,7 +61,7 @@ public final class SimpleWebServer
 	
 	class Handler implements HttpHandler
 	{
-		private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
+		private final Logger _logger = LogManager.getLogger(DiscordIntegrationMod.Name);
 		
 		@Override
 		public void handle(HttpExchange exchange)

@@ -15,10 +15,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import eu.uniga.Config.CustomEmoji;
+import eu.uniga.DiscordIntegrationMod;
 import eu.uniga.EmojiService.ResourcePack.BitmapGenerator;
 import eu.uniga.EmojiService.ResourcePack.Zip;
-import eu.uniga.NewDiscordIntegrationMod;
+import eu.uniga.ICustomResourcePackHandler;
 import eu.uniga.Utils.CodePoints;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -42,25 +44,26 @@ public class EmojiService
 		Yes,
 	}
 	
-	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
+	private final Logger _logger = LogManager.getLogger(DiscordIntegrationMod.Name);
 	private static final String AtlasName = "discord-emoji";
 	public static final Path ResourcePackLocation = Paths.get("resource-pack.zip");
-	private final Set<Guild> _servers = new HashSet<>();
 	private List<Emote> _emotes = new ArrayList<>();
 	private final Object _emotesLock = new Object();
 	private final Timer _timer;
+	private final JDA _jda;
 	
 	private BufferedImage _emoteBitmapAtlas = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 	private int[][] _emoteCodepointAtlas = new int[0][0];
 	private Map<String, Integer> _emoteIDsTranslation = new HashMap<>();
 	private String _hash = "";
-	private final IResourcePackReloadable _reloadable;
+	private final ICustomResourcePackHandler _resourcePackHandler;
 	private final int _emojiSize;
 	private final Grabber _grabber;
 	private final URL _url;
 	
-	public EmojiService(CustomEmoji config, IResourcePackReloadable reloadable) throws MalformedURLException
+	public EmojiService(CustomEmoji config, ICustomResourcePackHandler resourcePackHandler, JDA jda) throws MalformedURLException
 	{
+		_jda = jda;
 		_emojiSize = config.GetSize();
 		
 		String hostname = config.GetWebserverHostname();
@@ -68,27 +71,9 @@ public class EmojiService
 		
 		_url = new URL("http", hostname, config.GetWebserverReportedPort(), "");
 		
-		_reloadable = reloadable;
+		_resourcePackHandler = resourcePackHandler;
 		_timer = new Timer(true);
 		_grabber = new Grabber();
-	}
-	
-	// Thread safe
-	public void AddGuild(Guild guild)
-	{
-		synchronized (_servers)
-		{
-			_servers.add(guild);
-		}
-	}
-	
-	// Thread safe
-	public void RemoveGuild(Guild guild)
-	{
-		synchronized (_servers)
-		{
-			_servers.remove(guild);
-		}
 	}
 	
 	public void Start(long grabberPeriod)
@@ -195,8 +180,8 @@ public class EmojiService
 			int randomInt = random.nextInt();
 			_logger.info("Reloading resource pack, url: {} hash: {}", _url.toString() + "/" + randomInt + "/" + ResourcePackLocation, _hash);
 			
-			if (changed == EmotesChanged.Yes) _reloadable.Reload(_url, randomInt + "/" + ResourcePackLocation, _hash);
-			_reloadable.UpdateDictionary(_emoteIDsTranslation);
+			if (changed == EmotesChanged.Yes) _resourcePackHandler.ChangeResourcePack(_url, randomInt + "/" + ResourcePackLocation, _hash);
+			_resourcePackHandler.UpdateDictionary(_emoteIDsTranslation);
 		}
 		
 		private EmotesChanged CompareEmojiCollections(List<Emote> newEmotes)
@@ -221,17 +206,7 @@ public class EmojiService
 		
 		private EmotesChanged GetEmotes()
 		{
-			List<Emote> emotes = new ArrayList<>();
-			
-			synchronized (_servers)
-			{
-				// Get all emotes from servers
-				for (Guild server : _servers)
-				{
-					List<Emote> serverEmotes = server.getEmotes();
-					emotes.addAll(serverEmotes);
-				}
-			}
+			List<Emote> emotes = new ArrayList<>(_jda.getEmotes());
 			
 			// Compare if something changed
 			EmotesChanged changed = CompareEmojiCollections(emotes);

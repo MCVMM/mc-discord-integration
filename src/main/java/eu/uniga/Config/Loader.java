@@ -2,7 +2,7 @@ package eu.uniga.Config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.uniga.NewDiscordIntegrationMod;
+import eu.uniga.DiscordIntegrationMod;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -10,11 +10,11 @@ import org.apache.logging.log4j.LogManager;
 import java.io.*;
 import java.nio.file.Path;
 
-public class Loader
+class Loader
 {
 	private static final String Location = "uniga-discord-integration.json";
 	private static Config _config;
-	private static final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
+	private static final Logger _logger = LogManager.getLogger(DiscordIntegrationMod.Name);
 	
 	static Config GetConfig()
 	{
@@ -34,7 +34,7 @@ public class Loader
 	{
 		Path absolutePath = FabricLoader.getInstance().getConfigDir().resolve(Location);
 		Gson json = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
-		Reader reader = null;
+		Reader reader;
 		
 		// Try to read config file
 		try

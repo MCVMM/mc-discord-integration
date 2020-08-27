@@ -1,6 +1,6 @@
 package eu.uniga.EmojiService.ResourcePack;
 
-import eu.uniga.NewDiscordIntegrationMod;
+import eu.uniga.DiscordIntegrationMod;
 import net.dv8tion.jda.api.entities.Emote;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +17,7 @@ import java.util.*;
 public final class BitmapGenerator
 {
 	private final int EmoteSize;
-	private final Logger _logger = LogManager.getLogger(NewDiscordIntegrationMod.Name);
+	private final Logger _logger = LogManager.getLogger(DiscordIntegrationMod.Name);
 	
 	private final Collection<Emote> _emotes;
 	private final int _bitmapSize;
