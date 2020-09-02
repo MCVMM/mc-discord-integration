@@ -1,16 +1,19 @@
 plugins {
-	id 'scala'
+	id 'java'
 	id 'fabric-loom' version '0.4-SNAPSHOT'
-	id 'maven-publish'
 	id 'org.jetbrains.kotlin.jvm' version '1.4.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+compileKotlin.kotlinOptions.jvmTarget = '1.8'
+compileTestKotlin.kotlinOptions.jvmTarget = '1.8'
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
+
+// Add new configuration that adds the lib into the jar
 
 dependencies {
 	//to change the versions see the gradle.properties file
@@ -21,23 +24,28 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-	// You may need to force-disable transitiveness on them.
-
-	// Scala language support for Fabric
-	modImplementation "net.fabricmc:fabric-language-scala:0.3.1.+"
-
 	// Discord API for Java
-	compile 'net.dv8tion:JDA:4.2.0_177'
+	implementation ('net.dv8tion:JDA:4.2.0_191') {
+		exclude module: 'opus-java'
+	}
+	include ('net.dv8tion:JDA:4.2.0_191') {
+		exclude module: 'opus-java'
+	}
+	include "net.sf.trove4j:trove4j:3.0.3"
+	include 'org.slf4j:slf4j-nop:1.7.25'
+	include 'org.slf4j:slf4j-api:1.7.25'
+	include 'org.apache.commons:commons-collections4:4.1'
+	include 'com.neovisionaries:nv-websocket-client:2.10'
+	include 'com.squareup.okhttp3:okhttp:3.13.0'
+	include 'com.squareup.okio:okio:1.17.2'
+	include 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
+	include 'com.fasterxml.jackson.core:jackson-annotations:2.10.1'
+	include 'com.fasterxml.jackson.core:jackson-core:2.10.1'
 
-	// Logging library implementation
-	implementation 'org.slf4j:slf4j-simple:1.7.30'
-
-    // Config parsing library
-	compile 'com.typesafe:config:1.4.0'
+	// Kotlin
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-
-	implementation project(':MinecraftTextCompatibleSimpleAST')
+	include 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+	modImplementation 'net.fabricmc:fabric-language-kotlin:1.3.72+build.1'
 }
 
 repositories {
@@ -78,23 +86,9 @@ jar {
 	from "LICENSE"
 }
 
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(remapJar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
-		}
-	}
-
-	// select the repositories you want to publish to
-	repositories {
-		// uncomment to publish to the local maven
-		// mavenLocal()
-	}
+compileKotlin {
+	kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+	kotlinOptions.jvmTarget = "1.8"
 }
