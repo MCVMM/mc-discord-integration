@@ -9,8 +9,19 @@ Create `config` folder within the server root, if it is not present already.
 Then create `config/uniga-discord-integration.json` config file with following content:
 ```json
 {
-  "token": "Your discord token (can be obtained from https://discord.com/developers/applications)",
-  "channel": 0
+  "Token": "Your discord token (can be obtained from https://discord.com/developers/applications)",
+  "Channels": [
+    0,
+    1
+  ],
+  "Custom emoji": {
+    "Enable custom emoji": true,
+    "Integrated webserver port": 8080,
+    "Integrated webserver hostname": "example.com",
+    "Integrated webserver reported port": 80,
+    "Force reload resource pack": true,
+    "Size": 128
+  }
 }
 ```
 
