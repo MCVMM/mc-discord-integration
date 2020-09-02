@@ -28,6 +28,9 @@
     "fabric": "*",
     "minecraft": "1.16.x"
   },
+  "requires": {
+    "fabric-language-kotlin": ">=1.4.0"
+  },
   "suggests": {
     "flamingo": "*"
   }

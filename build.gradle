@@ -6,6 +6,8 @@ plugins {
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+compileKotlin.kotlinOptions.jvmTarget = '1.8'
+compileTestKotlin.kotlinOptions.jvmTarget = '1.8'
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -40,8 +42,10 @@ dependencies {
 	include 'com.fasterxml.jackson.core:jackson-annotations:2.10.1'
 	include 'com.fasterxml.jackson.core:jackson-core:2.10.1'
 
+	// Kotlin
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 	include 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+	modImplementation 'net.fabricmc:fabric-language-kotlin:1.3.72+build.1'
 }
 
 repositories {
@@ -83,7 +87,8 @@ jar {
 }
 
 compileKotlin {
-	kotlinOptions {
-		jvmTarget = "1.8"
-	}
+	kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+	kotlinOptions.jvmTarget = "1.8"
 }

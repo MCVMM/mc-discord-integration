@@ -28,3 +28,5 @@ Then create `config/uniga-discord-integration.json` config file with following c
 To get the channel ID, first enable developer settings, then right click the channel and select **Copy ID**
 
 The bot requires permissions to read, send messages and manage the channel with ID specified in `channel`.
+
+Do not forget to add Kotlin [dependency](https://www.curseforge.com/minecraft/mc-mods/fabric-language-kotlin)
