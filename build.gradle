@@ -1,6 +1,6 @@
 plugins {
+	id 'java'
 	id 'fabric-loom' version '0.4-SNAPSHOT'
-	id 'maven-publish'
 	id 'org.jetbrains.kotlin.jvm' version '1.4.0'
 }
 
@@ -10,6 +10,8 @@ targetCompatibility = JavaVersion.VERSION_1_8
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
+
+// Add new configuration that adds the lib into the jar
 
 dependencies {
 	//to change the versions see the gradle.properties file
@@ -21,12 +23,25 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Discord API for Java
-	implementation 'net.dv8tion:JDA:4.2.0_168'
+	implementation ('net.dv8tion:JDA:4.2.0_191') {
+		exclude module: 'opus-java'
+	}
+	include ('net.dv8tion:JDA:4.2.0_191') {
+		exclude module: 'opus-java'
+	}
+	include "net.sf.trove4j:trove4j:3.0.3"
+	include 'org.slf4j:slf4j-nop:1.7.25'
+	include 'org.slf4j:slf4j-api:1.7.25'
+	include 'org.apache.commons:commons-collections4:4.1'
+	include 'com.neovisionaries:nv-websocket-client:2.10'
+	include 'com.squareup.okhttp3:okhttp:3.13.0'
+	include 'com.squareup.okio:okio:1.17.2'
+	include 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
+	include 'com.fasterxml.jackson.core:jackson-annotations:2.10.1'
+	include 'com.fasterxml.jackson.core:jackson-core:2.10.1'
 
-    // Kotlin for SimpleAST
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-
-	implementation project(':MinecraftTextCompatibleSimpleAST')
+	include 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 }
 
 repositories {
@@ -67,23 +82,8 @@ jar {
 	from "LICENSE"
 }
 
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(remapJar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
-		}
-	}
-
-	// select the repositories you want to publish to
-	repositories {
-		// uncomment to publish to the local maven
-		// mavenLocal()
+compileKotlin {
+	kotlinOptions {
+		jvmTarget = "1.8"
 	}
 }
