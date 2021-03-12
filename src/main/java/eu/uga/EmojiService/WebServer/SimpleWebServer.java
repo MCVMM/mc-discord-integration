@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import eu.uga.DiscordIntegrationMod;
 import eu.uga.EmojiService.EmojiService;
+import eu.uga.EmojiService.WebServer.SimpleWebServer.Handler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
