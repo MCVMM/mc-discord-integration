@@ -3,6 +3,10 @@ package eu.uga.Config;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 public class Config
 {
 	/***
@@ -14,7 +18,7 @@ public class Config
 	
 	@Expose
 	@SerializedName("Channels")
-	private long[] _channels;
+	private HashSet<Long> _channels;
 	
 	@Expose
 	@SerializedName("Custom emoji")
@@ -28,9 +32,9 @@ public class Config
 		return _token;
 	}
 	
-	public long[] GetChannels()
+	public Set<Long> GetChannels()
 	{
-		return _channels;
+		return Collections.unmodifiableSet(_channels);
 	}
 	
 	public CustomEmoji GetCustomEmoji()
@@ -56,7 +60,7 @@ public class Config
 		Config config = new Config();
 		
 		config._token = "Insert discord token from https://discord.com/developers/applications/";
-		config._channels = new long[0];
+		config._channels = new HashSet<>();
 		config._customEmoji = CustomEmoji.GetDefault();
 		
 		return config;

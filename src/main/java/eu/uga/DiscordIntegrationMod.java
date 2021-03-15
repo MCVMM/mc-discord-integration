@@ -301,6 +301,7 @@ public final class DiscordIntegrationMod implements Runnable, IMinecraftChatHand
 	@Override
 	public void OnDiscordMessage(@NotNull Member member, @NotNull Message message)
 	{
+		if (!_config.GetChannels().contains(message.getChannel().getIdLong())) return;
 		Pair<Member, Message> pair = new Pair<>(member, message);
 		
 		synchronized (_enqueuedDiscordMessages)
